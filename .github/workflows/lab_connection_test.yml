@@ -1,4 +1,4 @@
-name: Personal AI Lab Connection Test
+name: Paper 2 Lab Experiment
 
 on:
   workflow_dispatch:
@@ -6,11 +6,12 @@ on:
     paths:
       - ".github/workflows/lab_connection_test.yml"
       - "github_dispatch.py"
+      - "experiments/**"
 
 jobs:
-  test-lab:
+  paper2-lab:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 7
 
     steps:
       - name: Checkout repository
@@ -21,8 +22,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install requests
+      - name: Install dispatcher dependency
         run: python -m pip install --disable-pip-version-check requests
 
-      - name: Test GitHub to Personal AI Lab connection
+      - name: Dispatch Paper 2 experiment to Personal AI Lab
         run: python github_dispatch.py
