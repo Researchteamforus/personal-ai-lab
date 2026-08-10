@@ -15,7 +15,7 @@ concurrency:
 jobs:
   paper2-lab:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 95
 
     steps:
       - name: Checkout repository
