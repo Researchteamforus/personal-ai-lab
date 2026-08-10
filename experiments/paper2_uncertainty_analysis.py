@@ -6,11 +6,11 @@ Expected real-data NPZ keys when available:
   ood_mc_probs: optional float array [N_ood, T, C]
   ood_labels:   optional int array [N_ood]
 
-The script can also run a synthetic smoke test with no arguments.
+The current remote run executes a synthetic smoke test so the metric pipeline can be
+validated before the original Paper 2 predictions/model assets are mounted.
 """
 
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -113,10 +113,9 @@ def risk_coverage_curve(uncertainty, correct):
     k = np.arange(1, len(c) + 1)
     coverage = k / float(len(c))
     risk = 1.0 - np.cumsum(c) / k
-    # Prepend coverage 0 using the first observed risk to avoid an artificial zero-risk triangle.
     coverage_i = np.concatenate([[0.0], coverage])
     risk_i = np.concatenate([[risk[0]], risk])
-    aurc = float(np.trapz(risk_i, coverage_i))
+    aurc = float(np.trapezoid(risk_i, coverage_i))
     return coverage, risk, aurc
 
 
@@ -140,10 +139,10 @@ def selective_at_coverage(mean_p, labels, uncertainty, target_coverage=0.60):
         total_cls = int(np.sum(labels == cls))
         retained_cls_mask = retained_labels == cls
         retained_cls_n = int(np.sum(retained_cls_mask))
-        if retained_cls_n:
-            sensitivity = float(np.mean(retained_pred[retained_cls_mask] == cls))
-        else:
-            sensitivity = None
+        sensitivity = (
+            float(np.mean(retained_pred[retained_cls_mask] == cls))
+            if retained_cls_n else None
+        )
         out["class_metrics"][str(cls)] = {
             "total_n": total_cls,
             "retained_n": retained_cls_n,
@@ -171,13 +170,12 @@ def analyze_id(id_mc_probs, id_labels, target_coverage=0.60):
 
     for name, score in scores.items():
         rc_cov, rc_risk, aurc = risk_coverage_curve(score, correct)
-        method = {
+        result["uncertainty_methods"][name] = {
             "error_detection": safe_binary_metrics(error, score),
             "aurc": aurc,
             "risk_at_60pct_nearest": float(rc_risk[np.argmin(np.abs(rc_cov - target_coverage))]),
             "selective": selective_at_coverage(mean_p, labels, score, target_coverage),
         }
-        result["uncertainty_methods"][name] = method
     return result, mean_p, scores
 
 
@@ -210,13 +208,12 @@ def analyze_npz(path, target_coverage=0.60):
     return result
 
 
-def _synthetic_smoke_test(seed=2026):
+def synthetic_smoke_test(seed=2026):
     rng = np.random.default_rng(seed)
     n, t, c = 300, 30, 7
     labels = rng.integers(0, c, size=n)
     mc = np.empty((n, t, c), dtype=np.float64)
 
-    # Most cases: concentrated around the correct class. Hard cases: disagreement/noisier draws.
     hard = rng.random(n) < 0.28
     for i in range(n):
         base = np.ones(c) * (0.35 if hard[i] else 0.08)
@@ -228,7 +225,6 @@ def _synthetic_smoke_test(seed=2026):
                 alpha[wrong] += 2.5
             mc[i, j] = rng.dirichlet(alpha)
 
-    # Synthetic OOD: weak and unstable concentration.
     ood = np.empty((150, t, c), dtype=np.float64)
     for i in range(len(ood)):
         for j in range(t):
@@ -244,11 +240,11 @@ def _synthetic_smoke_test(seed=2026):
 
 
 def main(argv=None):
-    argv = list(sys.argv[1:] if argv is None else argv)
+    argv = [] if argv is None else list(argv)
     if argv:
         result = analyze_npz(Path(argv[0]))
     else:
-        result = _synthetic_smoke_test()
+        result = synthetic_smoke_test()
 
     print("PAPER2_ANALYSIS_JSON_BEGIN")
     print(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
@@ -256,5 +252,5 @@ def main(argv=None):
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+# Remote lab workers execute code via exec(), so call main explicitly at top level.
+main([])
