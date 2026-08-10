@@ -1,0 +1,28 @@
+name: Personal AI Lab Connection Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/lab_connection_test.yml"
+      - "github_dispatch.py"
+
+jobs:
+  test-lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install requests
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Test GitHub to Personal AI Lab connection
+        run: python github_dispatch.py
