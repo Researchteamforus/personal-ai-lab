@@ -8,6 +8,10 @@ on:
       - "github_dispatch.py"
       - "experiments/**"
 
+concurrency:
+  group: paper2-personal-ai-lab
+  cancel-in-progress: true
+
 jobs:
   paper2-lab:
     runs-on: ubuntu-latest
