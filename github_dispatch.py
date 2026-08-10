@@ -30,9 +30,6 @@ def main():
     if not available:
         return 31
 
-    # One task across all currently-online targets. Each node runs the same canonical
-    # paper2_backup_outputs.py and reports either a verified backup or an explicit
-    # no-data/error state. Originals are untouched.
     code = """
 from pathlib import Path
 try:
@@ -66,7 +63,7 @@ except Exception as e:
                     print("REMOTE_ERROR|" + str(data.get("error")), flush=True); bad = True
                 out = data.get("output", "")
                 print(out, flush=True)
-                if "PAPER2_BACKUP_COMPLETE" not in out and "PAPER2_BACKUP_NO_DATA" not in out:
+                if "PAPER2_BACKUP_COMPLETE" not in out and "PAPER2_BACKUP_NO_DATA" not in out and "PAPER2_NO_SOURCE_DATA" not in out:
                     bad = True
             return 40 if bad else 0
         if status in {"failed", "error", "cancelled", "overwritten"}:
