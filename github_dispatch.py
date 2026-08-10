@@ -1,3 +1,4 @@
+# GitHub-to-lab connection probe. Safe test only; no model training.
 import sys
 import time
 import requests
