@@ -4,7 +4,7 @@ from pathlib import Path
 import requests
 
 COORDINATOR_URL = "https://miomiomiomizan-personal-ai-lab.hf.space"
-EXPERIMENT_PATH = Path("experiments/paper2_uncertainty_analysis.py")
+EXPERIMENT_PATH = Path("experiments/paper2_statistical_revision.py")
 TARGETS = ["Node10-GPU-T4-x2"]
 POLL_SECONDS = 5
 MAX_WAIT_SECONDS = 1800
