@@ -1,4 +1,3 @@
-# GitHub-to-lab Paper 2 asset inventory. Lists relevant paths only; does not read file contents.
 import sys
 import time
 import requests
@@ -11,87 +10,63 @@ TEST_CODE = r'''
 import os
 from pathlib import Path
 
-print("=== PAPER 2 ASSET INVENTORY ===")
-print("cwd:", os.getcwd())
-print("home:", str(Path.home()))
+print("=== KAGGLE PAPER 2 ASSET CHECK ===")
 
-roots = []
-for p in [Path.cwd(), Path.home(), Path('/workspace'), Path('/content'), Path('/mnt/data')]:
-    try:
-        rp = p.resolve()
-    except Exception:
-        continue
-    if rp.exists() and rp.is_dir() and rp not in roots:
-        roots.append(rp)
-
+roots = [Path('/kaggle/input'), Path('/kaggle/working')]
 keywords = (
-    'ham10000', 'ham_10000', 'skin', 'lesion', 'resnet', 'dropout',
-    'mc_dropout', 'uncertainty', 'paper2', 'paper_2', 'prediction',
-    'ood', 'metadata', 'lesion_id', 'checkpoint', 'model'
+    'ham10000', 'skin', 'lesion', 'resnet', 'dropout', 'uncertainty',
+    'paper2', 'paper_2', 'prediction', 'ood', 'metadata', 'checkpoint', 'model'
 )
 interesting_ext = {
     '.py', '.ipynb', '.pt', '.pth', '.ckpt', '.h5', '.keras', '.onnx',
     '.npy', '.npz', '.csv', '.json', '.parquet', '.pkl', '.joblib'
 }
-skip_dirs = {
-    '.git', '.cache', '__pycache__', 'node_modules', 'site-packages',
-    '.local', '.npm', '.conda', 'anaconda3', 'miniconda3', 'venv', '.venv'
-}
-
-matches = []
-seen = set()
-max_files = 300
-max_depth = 6
 
 for root in roots:
-    print("SCAN_ROOT:", root)
-    root_parts = len(root.parts)
+    print('ROOT|', root, '|exists=', root.exists())
+    if not root.exists():
+        continue
+    try:
+        top = sorted(root.iterdir(), key=lambda p: p.name.lower())
+    except Exception as exc:
+        print('ROOT_ERROR|', root, '|', repr(exc))
+        continue
+
+    print('TOP_LEVEL_COUNT|', root, '|', len(top))
+    for entry in top[:200]:
+        try:
+            kind = 'DIR' if entry.is_dir() else 'FILE'
+            size = entry.stat().st_size / (1024*1024) if entry.is_file() else 0.0
+        except Exception:
+            kind, size = 'UNKNOWN', 0.0
+        print(f'TOP|{kind}|{size:.3f} MB|{entry}')
+
+    matches = []
+    root_depth = len(root.parts)
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
         current = Path(dirpath)
-        depth = len(current.parts) - root_parts
-        dirnames[:] = [d for d in dirnames if d not in skip_dirs and not d.startswith('.cache')]
-        if depth >= max_depth:
+        depth = len(current.parts) - root_depth
+        if depth >= 5:
             dirnames[:] = []
-
         for name in filenames:
             p = current / name
             low = str(p).lower()
-            if p.suffix.lower() not in interesting_ext:
-                continue
-            if not any(k in low for k in keywords):
-                continue
-            try:
-                rp = str(p.resolve())
-                if rp in seen:
-                    continue
-                seen.add(rp)
-                size_mb = p.stat().st_size / (1024 * 1024)
-            except Exception:
-                continue
-            matches.append((rp, size_mb))
-            if len(matches) >= max_files:
-                break
-        if len(matches) >= max_files:
+            if p.suffix.lower() in interesting_ext and any(k in low for k in keywords):
+                try:
+                    size = p.stat().st_size / (1024*1024)
+                except Exception:
+                    size = -1
+                matches.append((str(p), size))
+                if len(matches) >= 250:
+                    break
+        if len(matches) >= 250:
             break
-    if len(matches) >= max_files:
-        break
 
-print("MATCH_COUNT:", len(matches))
-for path, size_mb in sorted(matches):
-    print(f"ASSET|{size_mb:.3f} MB|{path}")
+    print('MATCH_COUNT|', root, '|', len(matches))
+    for path, size in sorted(matches):
+        print(f'ASSET|{size:.3f} MB|{path}')
 
-# Lightweight dataset/model directory hints without recursive content reads.
-for root in roots:
-    try:
-        entries = list(root.iterdir())[:200]
-    except Exception:
-        continue
-    for entry in entries:
-        low = entry.name.lower()
-        if entry.is_dir() and any(k in low for k in keywords):
-            print("DIR_HINT|", str(entry))
-
-print("PAPER2_ASSET_INVENTORY_DONE")
+print('KAGGLE_ASSET_CHECK_DONE')
 '''
 
 
@@ -102,47 +77,25 @@ def request_json(method, url, **kwargs):
 
 
 def main():
-    print(f"Coordinator: {COORDINATOR_URL}")
-    try:
-        state = request_json("GET", f"{COORDINATOR_URL}/get_state")
-    except Exception as exc:
-        print(f"ERROR: Could not reach coordinator/get_state: {exc}")
-        return 10
-
-    nodes = state.get("nodes", [])
-    online = [n for n in nodes if n.get("status") == "online"]
+    state = request_json("GET", f"{COORDINATOR_URL}/get_state")
+    online = [n for n in state.get("nodes", []) if n.get("status") == "online"]
     print(f"Online worker nodes: {len(online)}")
-    for node in online:
-        print(" -", node.get("node_id"), "| GPU:", node.get("gpu_name"))
-
     if not online:
-        print("NO_ONLINE_WORKERS")
         return 20
 
-    try:
-        dispatch = request_json(
-            "POST", f"{COORDINATOR_URL}/run_code",
-            json={"code": TEST_CODE, "targets": []},
-        )
-    except Exception as exc:
-        print(f"ERROR: /run_code request failed: {exc}")
-        return 30
-
+    dispatch = request_json(
+        "POST", f"{COORDINATOR_URL}/run_code",
+        json={"code": TEST_CODE, "targets": []},
+    )
     task_id = dispatch.get("task_id")
     if not task_id:
-        print("ERROR: no task_id", dispatch)
+        print("No task_id:", dispatch)
         return 31
 
     print("Task ID:", task_id)
     deadline = time.time() + MAX_WAIT_SECONDS
     while time.time() < deadline:
-        try:
-            result = request_json("GET", f"{COORDINATOR_URL}/get_task_result/{task_id}")
-        except Exception as exc:
-            print("Polling error:", exc)
-            time.sleep(POLL_SECONDS)
-            continue
-
+        result = request_json("GET", f"{COORDINATOR_URL}/get_task_result/{task_id}")
         status = result.get("status")
         responses = result.get("responses", {})
         print(f"Status: {status}; responses: {len(responses)}")
@@ -152,18 +105,14 @@ def main():
                 print(f"\n===== {node_id} =====")
                 if data.get("error"):
                     had_error = True
-                    print("ERROR:")
                     print(data.get("error"))
                 else:
-                    print("OUTPUT:")
                     print(data.get("output", ""))
             return 40 if had_error else 0
         if status in {"failed", "error", "cancelled"}:
-            print("Task ended unsuccessfully:", result)
+            print(result)
             return 41
         time.sleep(POLL_SECONDS)
-
-    print("TIMEOUT")
     return 50
 
 
