@@ -4,10 +4,10 @@ from pathlib import Path
 import requests
 
 COORDINATOR_URL = "https://miomiomiomizan-personal-ai-lab.hf.space"
-EXPERIMENT_PATH = Path("experiments/paper2_data_access_check.py")
-TARGETS = ["Node2-GPU-T4-x2"]
-POLL_SECONDS = 3
-MAX_WAIT_SECONDS = 300
+EXPERIMENT_PATH = Path("experiments/paper2_prepare_ham10000.py")
+TARGETS = ["Node10-GPU-T4-x2"]
+POLL_SECONDS = 5
+MAX_WAIT_SECONDS = 1800
 
 
 def request_json(method, url, **kwargs):
