@@ -73,21 +73,24 @@ def constrained_threshold(p,y,score,max_auto_miss=.10):
  return best
 
 def seed_dir(seed):
- if seed==2026:
-  d=BASE/'grouped_mc_seed2026'
-  if d.exists():return d
+ candidates=[]
+ if seed==2026:candidates.append(BASE/'grouped_mc_seed2026')
  root=BASE/'multiseed_fixed_split'
- for d in [root]+[x for x in root.rglob('*') if x.is_dir()]:
-  if re.search(rf'(?<!\d){seed}(?!\d)',str(d)) and any(d.glob('*.pt')):return d
- raise FileNotFoundError(f'No seed directory for {seed}')
+ if root.exists():
+  candidates += [d for d in [root]+[x for x in root.rglob('*') if x.is_dir()] if re.search(rf'(?<!\d){seed}(?!\d)',str(d))]
+ for d in candidates:
+  if d.exists() and (list(d.rglob('*.pt')) or list(d.rglob('*.npz'))):return d
+ raise FileNotFoundError(f'No seed directory for {seed}; checked {candidates[:8]}')
 def choose(d,names,patterns):
  for n in names:
-  p=d/n
-  if p.exists():return p
+  direct=d/n
+  if direct.exists():return direct
+  nested=list(d.rglob(n))
+  if nested:return nested[0]
  for pat in patterns:
-  x=list(d.glob(pat))
+  x=list(d.glob(pat)) or list(d.rglob(pat))
   if x:return x[0]
- raise FileNotFoundError(f'No matching file in {d}: {names} {patterns}')
+ raise FileNotFoundError(f'No matching file in {d}: {names} {patterns}; sample={[str(x) for x in list(d.rglob("*"))[:20]]}')
 def checkpoint(seed):return choose(seed_dir(seed),['best.pt','model_best_val_macro_f1.pt'],['*best*.pt','*.pt'])
 def predfile(seed):return choose(seed_dir(seed),['mc_predictions.npz','paper2_grouped_mc_predictions.npz'],['*predictions*.npz','*.npz'])
 def load_internal(seed):return np.load(predfile(seed),allow_pickle=False)
@@ -165,9 +168,9 @@ def reliability(p,y):
    m=(prob>=ed[i])&((prob<ed[i+1]) if i<9 else (prob<=ed[i+1]));rows.append({'kind':kind,'bin_low':ed[i],'bin_high':ed[i+1],'n':int(m.sum()),'mean_probability':float(prob[m].mean()) if m.any() else np.nan,'observed_frequency':float(target[m].mean()) if m.any() else np.nan})
  return rows
 def aggregate_lesion(frame,p):
- ys=np.asarray([IDX[x] for x in frame.ham_class]);ps=[];yy=[]
- for lid in frame.lesion_id.astype(str).unique():
-  ix=np.where(frame.lesion_id.astype(str).to_numpy()==lid)[0];labs=np.unique(ys[ix])
+ ys=np.asarray([IDX[x] for x in frame.ham_class]);ps=[];yy=[];lids=frame.lesion_id.astype(str).to_numpy()
+ for lid in np.unique(lids):
+  ix=np.where(lids==lid)[0];labs=np.unique(ys[ix])
   if len(labs)==1:ps.append(p[ix].mean(0));yy.append(labs[0])
  return norm(np.asarray(ps)),np.asarray(yy,int)
 def main():
