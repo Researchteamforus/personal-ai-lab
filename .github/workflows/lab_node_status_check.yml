@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          # progress recheck 2
+          # progress recheck 3
           python - <<'PY'
           import json, urllib.request
           base='https://miomiomiomizan-personal-ai-lab.hf.space'
@@ -16,6 +16,6 @@ jobs:
           print('EXEC_STATUS',d.get('execution',{}).get('status')); print('EXEC_TASK',tid)
           if tid:
               r=json.load(urllib.request.urlopen(base+'/get_task_result/'+tid,timeout=30)); print('TASK_RESULT_STATUS',r.get('status')); print('RESPONSES',list(r.get('responses',{}).keys()))
-          print('RECENT_LOGS',json.dumps(d.get('logs',[])[:12],default=str))
+          print('RECENT_LOGS',json.dumps(d.get('logs',[])[:15],default=str))
           for n in d.get('nodes',[]): print('NODE',n.get('node_id'),n.get('status'),n.get('tasks_completed'),n.get('last_ping'))
           PY
