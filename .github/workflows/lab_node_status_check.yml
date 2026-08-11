@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          # Node2 external-HIBA progress check refreshed again
+          # external-HIBA progress check after wait
           python - <<'PY'
           import json,urllib.request
           d=json.load(urllib.request.urlopen('https://miomiomiomizan-personal-ai-lab.hf.space/get_state',timeout=30))
           print('EXEC',json.dumps(d.get('execution',{}),default=str))
-          print('LOGS',json.dumps(d.get('logs',[])[:20],default=str))
+          print('LOGS',json.dumps(d.get('logs',[])[:25],default=str))
           for n in d.get('nodes',[]): print('NODE',n.get('node_id'),n.get('status'),n.get('last_ping'),n.get('tasks_completed'),n.get('gpu_name'),n.get('gpu_vram'))
           PY
