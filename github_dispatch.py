@@ -18,6 +18,22 @@ def wait(tid,mx=300):
  raise TimeoutError(tid)
 def main():
  state=req('GET',f'{COORDINATOR_URL}/get_state');print('ONLINE|'+','.join(n['node_id'] for n in state.get('nodes',[]) if n.get('status')=='online'),flush=True)
- code=r'''import pandas as pd,urllib.request,json\nfrom pathlib import Path\nu='https://isic-archive.s3.amazonaws.com/dois/10.34970-559884/hiba-skin-lesions.csv'\np=Path('/kaggle/working/hiba-skin-lesions.csv');urllib.request.urlretrieve(u,p)\ndf=pd.read_csv(p)\nprint('HIBA_META_SIZE|'+str(p.stat().st_size))\nprint('HIBA_COLUMNS|'+json.dumps(df.columns.tolist()))\nprint('HIBA_SHAPE|'+str(df.shape))\nfor c in df.columns:\n s=df[c]\n if s.nunique(dropna=False)<=30 or any(k in c.lower() for k in ['diagn','dx','lesion','image','patient','type']):\n  print('HIBA_COL|'+c+'|NUNIQUE='+str(s.nunique(dropna=False))+'|VALUES='+json.dumps(s.value_counts(dropna=False).head(40).astype(int).to_dict(),default=str))\nprint('HIBA_PROBE_DONE')\n'''
+ code='''
+import pandas as pd, urllib.request, json
+from pathlib import Path
+u='https://isic-archive.s3.amazonaws.com/dois/10.34970-559884/hiba-skin-lesions.csv'
+p=Path('/kaggle/working/hiba-skin-lesions.csv')
+urllib.request.urlretrieve(u,p)
+df=pd.read_csv(p)
+print('HIBA_META_SIZE|'+str(p.stat().st_size))
+print('HIBA_COLUMNS|'+json.dumps(df.columns.tolist()))
+print('HIBA_SHAPE|'+str(df.shape))
+for c in df.columns:
+ s=df[c]
+ if s.nunique(dropna=False)<=30 or any(k in c.lower() for k in ['diagn','dx','lesion','image','patient','type']):
+  vals={str(k):int(v) for k,v in s.value_counts(dropna=False).head(40).items()}
+  print('HIBA_COL|'+c+'|NUNIQUE='+str(s.nunique(dropna=False))+'|VALUES='+json.dumps(vals))
+print('HIBA_PROBE_DONE')
+'''
  out=wait(submit(code));OUT.mkdir(exist_ok=True);(OUT/'hiba_metadata_probe.txt').write_text(out,encoding='utf-8');return 0
 if __name__=='__main__':sys.exit(main())
