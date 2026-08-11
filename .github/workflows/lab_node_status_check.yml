@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          # Node2 external-HIBA progress check
+          # Node2 external-HIBA progress check refreshed
           python - <<'PY'
           import json,urllib.request
           d=json.load(urllib.request.urlopen('https://miomiomiomizan-personal-ai-lab.hf.space/get_state',timeout=30))
