@@ -10,8 +10,11 @@ jobs:
       - run: |
           python - <<'PY'
           import json, urllib.request
-          d=json.load(urllib.request.urlopen('https://miomiomiomizan-personal-ai-lab.hf.space/get_state',timeout=30))
-          print('EXEC_STATUS',d.get('execution',{}).get('status'))
-          print('EXEC_TASK',d.get('execution',{}).get('current_task_id'))
+          base='https://miomiomiomizan-personal-ai-lab.hf.space'
+          d=json.load(urllib.request.urlopen(base+'/get_state',timeout=30)); tid=d.get('execution',{}).get('current_task_id')
+          print('EXEC_STATUS',d.get('execution',{}).get('status')); print('EXEC_TASK',tid)
+          if tid:
+              r=json.load(urllib.request.urlopen(base+'/get_task_result/'+tid,timeout=30)); print('TASK_RESULT_STATUS',r.get('status')); print('RESPONSES',list(r.get('responses',{}).keys()))
+          print('RECENT_LOGS',json.dumps(d.get('logs',[])[:12],default=str))
           for n in d.get('nodes',[]): print('NODE',n.get('node_id'),n.get('status'),n.get('tasks_completed'),n.get('last_ping'))
           PY
