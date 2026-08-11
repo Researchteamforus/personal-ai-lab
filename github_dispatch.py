@@ -37,7 +37,7 @@ def extract(t,a,b):
  if i<0 or j<0 or j<=i:raise ValueError((a,b))
  return t[i+len(a):j].strip()
 def transfer(rp,lp):
- meta=json.loads(extract(remote(f"from pathlib import Path;import hashlib,json;p=Path({rp!r});h=hashlib.sha256(p.read_bytes()).hexdigest();print('M0');print(json.dumps({{'size':p.stat().st_size,'sha256':h}}));print('M1')"),'M0','M1'));total=int(meta['size']);expected=meta['sha256'];lp.parent.mkdir(parents=True,exist_ok=True);off=0;chunk=4*1024*1024
+ meta=json.loads(extract(remote(f"from pathlib import Path;import hashlib,json;p=Path({rp!r});h=hashlib.sha256(p.read_bytes()).hexdigest();print('M0');print(json.dumps({{'size':p.stat().st_size,'sha256':h}}));print('M1')"),'M0','M1'));total=int(meta['size']);expected=meta['sha256'];lp.parent.mkdir(parents=True,exist_ok=True);off=0;chunk=4096
  with lp.open('wb') as f:
   while off<total:
    want=min(chunk,total-off);raw=remote(f"from pathlib import Path;import base64;p=Path({rp!r});f=open(p,'rb');f.seek({off});b=f.read({want});print('C0');print(base64.b64encode(b).decode());print('C1')");b=base64.b64decode(extract(raw,'C0','C1'));f.write(b);off+=len(b);print(f'TRANSFER|{off}/{total}',flush=True)
