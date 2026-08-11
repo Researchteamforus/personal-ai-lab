@@ -1,67 +1,30 @@
-import sys, time, json
+import sys, time
 import requests
 
 COORDINATOR_URL = "https://miomiomiomizan-personal-ai-lab.hf.space"
 TARGETS = ["Node10-GPU-T4-x2"]
-POLL_SECONDS = 5
-MAX_WAIT_SECONDS = 900
+POLL_SECONDS = 3
+MAX_WAIT_SECONDS = 300
 
 REMOTE_CODE = r'''
 from pathlib import Path
-import hashlib, tarfile, json
+from IPython.display import FileLink
 
-EXPORT_DIR = Path('/kaggle/working/paper2_exports')
-FINAL_ARCHIVE = Path('/kaggle/working/Paper2_COMPLETE_BACKUP.tar')
-NAMES = [
-    'grouped_mc_seed2026.tar',
-    'multiseed_fixed_split.tar',
-    'splits.tar',
-    'paper2_artifact_manifest.json',
-    'paper2_backup_index.json',
-]
+p = Path('/kaggle/working/Paper2_COMPLETE_BACKUP.tar')
+if not p.exists():
+    raise FileNotFoundError(str(p))
 
-def sha256_file(path, chunk_size=8*1024*1024):
-    h = hashlib.sha256()
-    with path.open('rb') as f:
-        while True:
-            b = f.read(chunk_size)
-            if not b:
-                break
-            h.update(b)
-    return h.hexdigest()
-
-rows = []
-for name in NAMES:
-    p = EXPORT_DIR / name
-    if not p.exists():
-        raise FileNotFoundError(str(p))
-    rows.append({
-        'name': name,
-        'path': str(p),
-        'size_bytes': p.stat().st_size,
-        'size_mb': round(p.stat().st_size / (1024**2), 3),
-        'sha256': sha256_file(p),
-    })
-
-print('PAPER2_SOURCE_FILES_BEGIN', flush=True)
-print(json.dumps(rows, indent=2), flush=True)
-print('PAPER2_SOURCE_FILES_END', flush=True)
-
-with tarfile.open(FINAL_ARCHIVE, 'w') as tf:
-    for name in NAMES:
-        tf.add(EXPORT_DIR / name, arcname=name, recursive=False)
-
-final = {
-    'path': str(FINAL_ARCHIVE),
-    'size_bytes': FINAL_ARCHIVE.stat().st_size,
-    'size_mb': round(FINAL_ARCHIVE.stat().st_size / (1024**2), 3),
-    'sha256': sha256_file(FINAL_ARCHIVE),
-    'contains': NAMES,
-}
-print('PAPER2_COMPLETE_BACKUP_BEGIN', flush=True)
-print(json.dumps(final, indent=2), flush=True)
-print('PAPER2_COMPLETE_BACKUP_END', flush=True)
-print('PAPER2_COMPLETE_BACKUP_READY', flush=True)
+link = FileLink(str(p), result_html_prefix='<b>Download complete Paper 2 backup:</b> ')
+print('PAPER2_DOWNLOAD_FILE|' + str(p), flush=True)
+print('PAPER2_DOWNLOAD_SIZE|' + str(p.stat().st_size), flush=True)
+try:
+    html = link._repr_html_()
+except Exception:
+    html = repr(link)
+print('PAPER2_FILELINK_HTML_BEGIN', flush=True)
+print(html, flush=True)
+print('PAPER2_FILELINK_HTML_END', flush=True)
+print('PAPER2_FILELINK_READY', flush=True)
 '''
 
 
@@ -102,7 +65,7 @@ def main():
                 return 41
             out = data.get('output', '')
             print(out, flush=True)
-            return 0 if 'PAPER2_COMPLETE_BACKUP_READY' in out else 42
+            return 0 if 'PAPER2_FILELINK_READY' in out else 42
         if status in {'failed','error','cancelled','overwritten'}:
             print('TASK_FAILED|' + str(result), flush=True)
             return 43
