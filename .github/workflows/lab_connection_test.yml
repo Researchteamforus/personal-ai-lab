@@ -29,5 +29,16 @@ jobs:
       - name: Install dispatcher dependency
         run: python -m pip install --disable-pip-version-check requests
 
-      - name: Dispatch Paper 2 experiment to Personal AI Lab
+      - name: Transfer Paper 2 backup from Personal AI Lab
         run: python github_dispatch.py
+
+      - name: Upload verified Paper 2 backup to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-verified-backup-2026-08-11
+          path: |
+            paper2_artifacts/Paper2_COMPLETE_BACKUP.tar
+            paper2_artifacts/Paper2_COMPLETE_BACKUP.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
