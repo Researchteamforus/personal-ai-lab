@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          # progress recheck 2
           python - <<'PY'
           import json, urllib.request
           base='https://miomiomiomizan-personal-ai-lab.hf.space'
