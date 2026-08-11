@@ -8,11 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          # Nabila external-HIBA progress check
           python - <<'PY'
           import json,urllib.request
-          d=json.load(urllib.request.urlopen('https://miomiomiomizan-personal-ai-lab.hf.space/get_state',timeout=30))
-          print('EXEC',json.dumps(d.get('execution',{}),default=str))
-          print('LOGS',json.dumps(d.get('logs',[])[:30],default=str))
-          for n in d.get('nodes',[]): print('NODE',n.get('node_id'),n.get('status'),n.get('last_ping'),n.get('tasks_completed'),n.get('gpu_name'),n.get('gpu_vram'))
+          base='https://miomiomiomizan-personal-ai-lab.hf.space'
+          tid='dac1aec3-c6c3-4b1a-b969-9942c2e0507e'
+          d=json.load(urllib.request.urlopen(base+'/get_task_result/'+tid,timeout=30))
+          print('OLD_HIBA_TASK_BEGIN')
+          print(json.dumps(d,indent=2,default=str))
+          print('OLD_HIBA_TASK_END')
           PY
