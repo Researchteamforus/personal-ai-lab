@@ -1,0 +1,27 @@
+name: Personal AI Lab Node Status Check
+
+on:
+  push:
+    paths:
+      - '.github/workflows/lab_node_status_check.yml'
+  workflow_dispatch:
+
+jobs:
+  check-nodes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Query coordinator node state
+        run: |
+          python - <<'PY'
+          import json, urllib.request
+          url = 'https://miomiomiomizan-personal-ai-lab.hf.space/get_state'
+          with urllib.request.urlopen(url, timeout=30) as r:
+              data = json.load(r)
+          print('LAB_STATE_BEGIN')
+          print(json.dumps(data, indent=2, sort_keys=True))
+          print('LAB_STATE_END')
+          nodes = data.get('nodes', [])
+          for n in nodes:
+              print(f"NODE|{n.get('node_id')}|status={n.get('status')}|gpu={n.get('gpu_name', n.get('gpu'))}|last_seen={n.get('last_seen')}")
+          PY
