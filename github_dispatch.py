@@ -1,12 +1,68 @@
-import sys, time
-from pathlib import Path
+import sys, time, json
 import requests
 
 COORDINATOR_URL = "https://miomiomiomizan-personal-ai-lab.hf.space"
-SCRIPT_PATH = Path("paper2_backup_outputs.py")
-TARGETS = ["Node10-GPU-T4-x2", "Node2-GPU-T4-x2"]
+TARGETS = ["Node10-GPU-T4-x2"]
 POLL_SECONDS = 5
 MAX_WAIT_SECONDS = 900
+
+REMOTE_CODE = r'''
+from pathlib import Path
+import hashlib, tarfile, json
+
+EXPORT_DIR = Path('/kaggle/working/paper2_exports')
+FINAL_ARCHIVE = Path('/kaggle/working/Paper2_COMPLETE_BACKUP.tar')
+NAMES = [
+    'grouped_mc_seed2026.tar',
+    'multiseed_fixed_split.tar',
+    'splits.tar',
+    'paper2_artifact_manifest.json',
+    'paper2_backup_index.json',
+]
+
+def sha256_file(path, chunk_size=8*1024*1024):
+    h = hashlib.sha256()
+    with path.open('rb') as f:
+        while True:
+            b = f.read(chunk_size)
+            if not b:
+                break
+            h.update(b)
+    return h.hexdigest()
+
+rows = []
+for name in NAMES:
+    p = EXPORT_DIR / name
+    if not p.exists():
+        raise FileNotFoundError(str(p))
+    rows.append({
+        'name': name,
+        'path': str(p),
+        'size_bytes': p.stat().st_size,
+        'size_mb': round(p.stat().st_size / (1024**2), 3),
+        'sha256': sha256_file(p),
+    })
+
+print('PAPER2_SOURCE_FILES_BEGIN', flush=True)
+print(json.dumps(rows, indent=2), flush=True)
+print('PAPER2_SOURCE_FILES_END', flush=True)
+
+with tarfile.open(FINAL_ARCHIVE, 'w') as tf:
+    for name in NAMES:
+        tf.add(EXPORT_DIR / name, arcname=name, recursive=False)
+
+final = {
+    'path': str(FINAL_ARCHIVE),
+    'size_bytes': FINAL_ARCHIVE.stat().st_size,
+    'size_mb': round(FINAL_ARCHIVE.stat().st_size / (1024**2), 3),
+    'sha256': sha256_file(FINAL_ARCHIVE),
+    'contains': NAMES,
+}
+print('PAPER2_COMPLETE_BACKUP_BEGIN', flush=True)
+print(json.dumps(final, indent=2), flush=True)
+print('PAPER2_COMPLETE_BACKUP_END', flush=True)
+print('PAPER2_COMPLETE_BACKUP_READY', flush=True)
+'''
 
 
 def request_json(method, url, **kwargs):
@@ -16,63 +72,43 @@ def request_json(method, url, **kwargs):
 
 
 def main():
-    if not SCRIPT_PATH.exists():
-        print(f"MISSING_SCRIPT|{SCRIPT_PATH}", flush=True)
-        return 2
-    backup_code = SCRIPT_PATH.read_text(encoding="utf-8")
-    state = request_json("GET", f"{COORDINATOR_URL}/get_state")
-    online = {n.get("node_id") for n in state.get("nodes", []) if n.get("status") == "online"}
-    print("ONLINE|" + ",".join(sorted(online)), flush=True)
+    state = request_json('GET', f'{COORDINATOR_URL}/get_state')
+    online = {n.get('node_id') for n in state.get('nodes', []) if n.get('status') == 'online'}
+    print('ONLINE|' + ','.join(sorted(online)), flush=True)
     available = [t for t in TARGETS if t in online]
-    missing = [t for t in TARGETS if t not in online]
-    for t in missing:
-        print(f"TARGET_OFFLINE|{t}", flush=True)
     if not available:
+        print('TARGET_OFFLINE|Node10-GPU-T4-x2', flush=True)
         return 31
 
-    code = """
-from pathlib import Path
-try:
-    exec(compile(BACKUP_SOURCE, 'paper2_backup_outputs.py', 'exec'), globals(), globals())
-except FileNotFoundError as e:
-    print('PAPER2_BACKUP_NO_DATA|' + str(e), flush=True)
-except Exception as e:
-    print('PAPER2_BACKUP_ERROR|' + repr(e), flush=True)
-"""
-    code = "BACKUP_SOURCE = " + repr(backup_code) + "\n" + code
-    d = request_json("POST", f"{COORDINATOR_URL}/run_code", json={"code": code, "targets": available})
-    tid = d.get("task_id")
-    print(f"BACKUP_TASK|{tid}|targets={available}", flush=True)
+    d = request_json('POST', f'{COORDINATOR_URL}/run_code', json={'code': REMOTE_CODE, 'targets': available})
+    tid = d.get('task_id')
+    print(f'TASK|{tid}|targets={available}', flush=True)
     if not tid:
         return 32
 
     deadline = time.time() + MAX_WAIT_SECONDS
     while time.time() < deadline:
-        result = request_json("GET", f"{COORDINATOR_URL}/get_task_result/{tid}")
-        status = result.get("status")
-        responses = result.get("responses", {})
-        print(f"POLL|{status}|responses={len(responses)}", flush=True)
-        if status == "completed":
-            bad = False
-            for target in available:
-                data = responses.get(target)
-                print(f"===== {target} BACKUP RESPONSE =====", flush=True)
-                if not data:
-                    print("MISSING_RESPONSE", flush=True); bad = True; continue
-                if data.get("error"):
-                    print("REMOTE_ERROR|" + str(data.get("error")), flush=True); bad = True
-                out = data.get("output", "")
-                print(out, flush=True)
-                if "PAPER2_BACKUP_COMPLETE" not in out and "PAPER2_BACKUP_NO_DATA" not in out and "PAPER2_NO_SOURCE_DATA" not in out:
-                    bad = True
-            return 40 if bad else 0
-        if status in {"failed", "error", "cancelled", "overwritten"}:
-            print("TASK_FAILED|" + str(result), flush=True)
-            return 41
+        result = request_json('GET', f'{COORDINATOR_URL}/get_task_result/{tid}')
+        status = result.get('status')
+        responses = result.get('responses', {})
+        print(f'POLL|{status}|responses={len(responses)}', flush=True)
+        if status == 'completed':
+            data = responses.get(available[0])
+            if not data:
+                print('MISSING_RESPONSE', flush=True)
+                return 40
+            if data.get('error'):
+                print('REMOTE_ERROR|' + str(data.get('error')), flush=True)
+                return 41
+            out = data.get('output', '')
+            print(out, flush=True)
+            return 0 if 'PAPER2_COMPLETE_BACKUP_READY' in out else 42
+        if status in {'failed','error','cancelled','overwritten'}:
+            print('TASK_FAILED|' + str(result), flush=True)
+            return 43
         time.sleep(POLL_SECONDS)
-    print("TIMEOUT", flush=True)
+    print('TIMEOUT', flush=True)
     return 50
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())
