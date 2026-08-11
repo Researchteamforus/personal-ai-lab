@@ -1,0 +1,38 @@
+{
+  "frozen_internal": {
+    "ensemble_calibrated_threshold_60": 0.134812870056786,
+    "ensemble_safety10": [0.05279712401484338, 0.5717111770524234, 0.0975609756097561],
+    "ensemble_temperature": 1.298611849285292,
+    "ensemble_threshold_60": 0.07310789926227024,
+    "mc_pe_threshold_60": 0.011307430987975004,
+    "mc_safety10": [0.010651079294219677, 0.5954500494559841, 0.0975609756097561]
+  },
+  "primary_cohort": {
+    "images": 1169,
+    "lesions": 1118,
+    "patients": 537,
+    "excluded_images": 466,
+    "class_counts": {"akiec":46,"bcc":230,"bkl":62,"df":39,"mel":196,"nv":555,"vasc":41}
+  },
+  "source": {"doi":"10.34970/559884","name":"HIBA Skin Lesions","official_images":1635,"primary_modality":"dermoscopic"},
+  "methods": {
+    "deep_ensemble_msp": {
+      "n":1169,"accuracy":0.6261762189905903,"macro_f1":0.43148250497420537,"weighted_f1":0.6047680506067519,"melanoma_recall":0.34183673469387754,"nll":1.3007807369631705,"brier":0.5220213384467979,"ece15":0.16019110206191406,"classwise_ece_mean":0.07272770112507518,"melanoma_binary_ece":0.08327447696731434,"aurc":0.1561966526542882,"eaurc":0.07550070122880488,"error_auroc":0.8165178627252381,"error_auprc":0.6748620589644279,
+      "frozen_60":{"coverage":0.41060735671514115,"selective_accuracy":0.89375,"selective_macro_f1":0.5156074075058356,"melanoma_n":196,"melanoma_coverage":0.15306122448979592,"retained_melanoma_n":30,"retained_melanoma_tp":9,"retained_melanoma_fn":21,"retained_melanoma_sensitivity":0.3,"retained_melanoma_fnr":0.7,"automatic_melanoma_miss_rate":0.10714285714285714,"melanoma_fn_escape_rate":0.16279069767441862},
+      "frozen_safety10":{"coverage":0.38922155688622756,"selective_accuracy":0.9054945054945055,"selective_macro_f1":0.5347450921257803,"melanoma_n":196,"melanoma_coverage":0.1377551020408163,"retained_melanoma_n":27,"retained_melanoma_tp":7,"retained_melanoma_fn":20,"retained_melanoma_sensitivity":0.25925925925925924,"retained_melanoma_fnr":0.7407407407407407,"automatic_melanoma_miss_rate":0.10204081632653061,"melanoma_fn_escape_rate":0.15503875968992248},
+      "lesion_level":{"n":1118,"accuracy":0.6386404293381037,"macro_f1":0.4366255570627426,"melanoma_recall":0.33962264150943394,"aurc_msp":0.14663836959114,"eaurc_msp":0.0716539731264863}
+    },
+    "deep_ensemble_calibrated_msp": {
+      "n":1169,"accuracy":0.6261762189905903,"macro_f1":0.43148250497420537,"weighted_f1":0.6047680506067519,"melanoma_recall":0.34183673469387754,"nll":1.1409566414092178,"brier":0.49983601811666745,"ece15":0.11234240935140448,"classwise_ece_mean":0.06579826988412134,"melanoma_binary_ece":0.072485570699776,"aurc":0.1551126116601364,"eaurc":0.07441666023465308,"error_auroc":0.8195908516837354,"error_auprc":0.6805482067825547,
+      "frozen_60":{"coverage":0.40889649272882805,"selective_accuracy":0.895397489539749,"selective_macro_f1":0.5068329302133318,"melanoma_n":196,"melanoma_coverage":0.14795918367346939,"retained_melanoma_n":29,"retained_melanoma_tp":8,"retained_melanoma_fn":21,"retained_melanoma_sensitivity":0.27586206896551724,"retained_melanoma_fnr":0.7241379310344828,"automatic_melanoma_miss_rate":0.10714285714285714,"melanoma_fn_escape_rate":0.16279069767441862},
+      "lesion_level":{"n":1118,"accuracy":0.6386404293381037,"macro_f1":0.4366255570627426,"melanoma_recall":0.33962264150943394,"aurc_msp":0.1453589019389176,"eaurc_msp":0.07037450547426391}
+    },
+    "mc_dropout_pe_seed2026": {
+      "n":1169,"accuracy":0.6295979469632165,"macro_f1":0.44532091212084535,"weighted_f1":0.6149839803020908,"melanoma_recall":0.2193877551020408,"nll":2.0483873298668085,"brier":0.6263785130548847,"ece15":0.2700593523197657,"classwise_ece_mean":0.0870024500662979,"melanoma_binary_ece":0.12550816032424372,"aurc":0.1771799696040207,"eaurc":0.09807647653480822,"error_auroc":0.7778862084546642,"error_auprc":0.6314915245710729,
+      "frozen_60":{"coverage":0.41488451668092385,"selective_accuracy":0.8721649484536083,"selective_macro_f1":0.5260110916792996,"melanoma_n":196,"melanoma_coverage":0.1377551020408163,"retained_melanoma_n":27,"retained_melanoma_tp":2,"retained_melanoma_fn":25,"retained_melanoma_sensitivity":0.07407407407407407,"retained_melanoma_fnr":0.9259259259259259,"automatic_melanoma_miss_rate":0.12755102040816327,"melanoma_fn_escape_rate":0.16339869281045752},
+      "frozen_safety10":{"coverage":0.41060735671514115,"selective_accuracy":0.8729166666666667,"selective_macro_f1":0.5176707898753254,"melanoma_n":196,"melanoma_coverage":0.12755102040816327,"retained_melanoma_n":25,"retained_melanoma_tp":1,"retained_melanoma_fn":24,"retained_melanoma_sensitivity":0.04,"retained_melanoma_fnr":0.96,"automatic_melanoma_miss_rate":0.12244897959183673,"melanoma_fn_escape_rate":0.1568627450980392},
+      "lesion_level":{"n":1118,"accuracy":0.648479427549195,"macro_f1":0.45404561715100605,"melanoma_recall":0.23270440251572327,"aurc_msp":0.16382447389197946,"eaurc_msp":0.09317661233563473}
+    }
+  },
+  "archive": {"sha256":"c5628662a1e8dc27a065e20f78b665c4235f4e01c425777fcac207313045b717","size_bytes":1231246,"actions_artifact_id":9090317534}
+}
