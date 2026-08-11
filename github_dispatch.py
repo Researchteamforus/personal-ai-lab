@@ -1,74 +1,27 @@
-import sys,time,hashlib,json
+import json,time,socket,os
 from pathlib import Path
 import requests
 
-COORDINATOR_URL='https://miomiomiomizan-personal-ai-lab.hf.space'
-TARGET='Node2-GPU-T4-x2'
-REMOTE_ARCHIVE='/kaggle/working/paper2_data/Paper2_HIBA_EXTERNAL_RESULTS.tar.gz'
-REMOTE_SHA='/kaggle/working/paper2_data/Paper2_HIBA_EXTERNAL_RESULTS.sha256'
-REMOTE_SUMMARY='/kaggle/working/paper2_data/external_hiba/hiba_external_summary.json'
-LOCAL=Path('paper2_artifacts')
+BASE='https://miomiomiomizan-personal-ai-lab.hf.space'
+TARGETS=['Node2-GPU-T4-x2','Node10-GPU-T4-x2','Nabila-GPU-T4-x2']
+OUT=Path('paper2_artifacts'); OUT.mkdir(exist_ok=True)
 
 def req(method,url,**kw):
     r=requests.request(method,url,timeout=90,**kw); r.raise_for_status(); return r.json()
 
-def submit(code):
-    d=req('POST',f'{COORDINATOR_URL}/run_code',json={'code':code,'targets':[TARGET]})
-    tid=d.get('task_id')
-    if not tid: raise RuntimeError('No task id')
-    return tid
-
-def wait(tid,mx=300):
-    end=time.time()+mx
-    while time.time()<end:
-        r=req('GET',f'{COORDINATOR_URL}/get_task_result/{tid}'); st=r.get('status'); resp=r.get('responses',{})
-        print(f'POLL|{tid}|{st}|responses={len(resp)}',flush=True)
-        if st=='completed':
-            d=resp.get(TARGET)
-            if not d: raise RuntimeError('missing target response')
-            out=d.get('output') or d.get('stdout') or ''
-            if d.get('error'): raise RuntimeError(str(d.get('error'))+'\n'+out)
-            return out
-        if st in {'failed','error','cancelled','overwritten'}: raise RuntimeError(st)
-        time.sleep(2)
-    raise TimeoutError(tid)
-
-def remote(code,mx=300): return wait(submit(code),mx)
-
-def between(t,a,b):
-    i=t.find(a); j=t.find(b,i+len(a))
-    if i<0 or j<0: raise ValueError((a,b))
-    return t[i+len(a):j].strip()
-
-def transfer(rp,lp):
-    raw=remote(f"from pathlib import Path;import hashlib,json;p=Path({rp!r});print('<<<META>>>');print(json.dumps({{'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}}));print('<<<ENDMETA>>>')")
-    meta=json.loads(between(raw,'<<<META>>>','<<<ENDMETA>>>')); total=int(meta['size']); expected=meta['sha256']; off=0; chunk=16384
-    lp.parent.mkdir(exist_ok=True)
-    with lp.open('wb') as f:
-        while off<total:
-            want=min(chunk,total-off)
-            raw=remote(f"from pathlib import Path;p=Path({rp!r});h=open(p,'rb');h.seek({off});b=h.read({want});print('<<<HEX>>>');print(b.hex());print('<<<ENDHEX>>>')")
-            b=bytes.fromhex(between(raw,'<<<HEX>>>','<<<ENDHEX>>>'))
-            if len(b)!=want: raise RuntimeError(f'chunk mismatch {len(b)} != {want}')
-            f.write(b); off+=len(b); print(f'TRANSFER|{off}/{total}',flush=True)
-    got=hashlib.sha256(lp.read_bytes()).hexdigest()
-    if got!=expected: raise RuntimeError('checksum mismatch')
-    return meta
-
-def main():
-    state=req('GET',f'{COORDINATOR_URL}/get_state'); online={n['node_id'] for n in state.get('nodes',[]) if n.get('status')=='online'}
-    print('ONLINE|'+','.join(sorted(online)),flush=True)
-    if TARGET not in online: return 31
-    pre=remote(f"from pathlib import Path;import json; a=Path({REMOTE_ARCHIVE!r});s=Path({REMOTE_SUMMARY!r});print('HIBA_RECOVERY|archive='+str(a.exists())+'|size='+(str(a.stat().st_size) if a.exists() else '0')+'|summary='+str(s.exists()));print('<<<SUMMARY>>>');print(s.read_text() if s.exists() else '');print('<<<ENDSUMMARY>>>')")
-    print(pre,flush=True)
-    if 'HIBA_RECOVERY|archive=True' not in pre or 'summary=True' not in pre: raise RuntimeError('completed HIBA files not found on Node2')
-    LOCAL.mkdir(exist_ok=True)
-    (LOCAL/'hiba_external_summary.json').write_text(between(pre,'<<<SUMMARY>>>','<<<ENDSUMMARY>>>'),encoding='utf-8')
-    meta=transfer(REMOTE_ARCHIVE,LOCAL/'Paper2_HIBA_EXTERNAL_RESULTS.tar.gz')
-    sha=remote(f"from pathlib import Path;print(Path({REMOTE_SHA!r}).read_text())").strip()
-    (LOCAL/'Paper2_HIBA_EXTERNAL_RESULTS.sha256').write_text(sha+'\n',encoding='utf-8')
-    print('HIBA_RECOVERY_TRANSFER_VERIFIED|'+json.dumps(meta,sort_keys=True),flush=True)
-    print('PAPER2_HIBA_GITHUB_READY',flush=True)
-    return 0
-
-if __name__=='__main__': sys.exit(main())
+state=req('GET',BASE+'/get_state')
+online=[n['node_id'] for n in state.get('nodes',[]) if n.get('status')=='online']
+print('ONLINE|'+','.join(online),flush=True)
+targets=[t for t in TARGETS if t in online]
+code="""import os,socket,json,torch
+from pathlib import Path
+print('HOST_DIAG|'+json.dumps({'hostname':socket.gethostname(),'env':{k:v for k,v in os.environ.items() if 'NODE' in k.upper() or 'KAGGLE' in k.upper()},'cuda':torch.cuda.is_available(),'gpu':torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,'paper2_data':Path('/kaggle/working/paper2_data').exists(),'ham_images':len(list(Path('/kaggle/working/paper2_data/HAM10000_images').glob('*.jpg'))) if Path('/kaggle/working/paper2_data/HAM10000_images').exists() else 0},default=str),flush=True)
+"""
+d=req('POST',BASE+'/run_code',json={'code':code,'targets':targets}); tid=d['task_id']; print('TASK|'+tid,flush=True)
+for _ in range(120):
+    r=req('GET',BASE+'/get_task_result/'+tid); print('POLL|'+str(r.get('status'))+'|'+str(len(r.get('responses',{}))),flush=True)
+    if r.get('status')=='completed':
+        txt=json.dumps(r,indent=2,default=str); print(txt,flush=True); (OUT/'worker_identity.json').write_text(txt,encoding='utf-8'); break
+    if r.get('status') in {'failed','error','cancelled','overwritten'}: raise RuntimeError(r)
+    time.sleep(2)
+else: raise TimeoutError(tid)
