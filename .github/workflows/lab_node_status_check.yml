@@ -11,7 +11,7 @@ jobs:
           python - <<'PY'
           import json, urllib.request
           d=json.load(urllib.request.urlopen('https://miomiomiomizan-personal-ai-lab.hf.space/get_state',timeout=30))
-          print('EXEC',json.dumps(d.get('execution',{}),default=str))
-          for n in d.get('nodes',[]):
-              print('NODE',n.get('node_id'),n.get('status'),n.get('last_ping'),n.get('tasks_completed'),n.get('gpu_name'),n.get('gpu_vram'))
+          print('EXEC_STATUS',d.get('execution',{}).get('status'))
+          print('EXEC_TASK',d.get('execution',{}).get('current_task_id'))
+          for n in d.get('nodes',[]): print('NODE',n.get('node_id'),n.get('status'),n.get('tasks_completed'),n.get('last_ping'))
           PY
