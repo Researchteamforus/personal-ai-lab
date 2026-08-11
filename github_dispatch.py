@@ -4,7 +4,7 @@ import requests
 
 COORDINATOR_URL = 'https://miomiomiomizan-personal-ai-lab.hf.space'
 TARGET = 'Node10-GPU-T4-x2'
-SCRIPT_PATH = Path('paper2_final_stage.py')
+REMOTE_SCRIPT_URL = 'https://raw.githubusercontent.com/Researchteamforus/personal-ai-lab/main/paper2_final_stage.py'
 REMOTE_ARCHIVE = '/kaggle/working/paper2_data/Paper2_FINAL_STAGE_RESULTS.tar.gz'
 REMOTE_SHA = '/kaggle/working/paper2_data/Paper2_FINAL_STAGE_RESULTS.sha256'
 LOCAL_DIR = Path('paper2_artifacts')
@@ -32,15 +32,17 @@ def wait_task(tid,max_wait):
         if st=='completed':
             data=responses.get(TARGET)
             if not data: raise RuntimeError('Missing Node10 response')
-            if data.get('error'): raise RuntimeError('Remote error: '+str(data.get('error')))
-            return data.get('output','')
+            output=data.get('output') or data.get('stdout') or ''
+            if data.get('error'): raise RuntimeError('Remote error: '+str(data.get('error'))+'\nOUTPUT:\n'+str(output))
+            if not output and data:
+                output=json.dumps(data,default=str)
+            return output
         if st in {'failed','error','cancelled','overwritten'}: raise RuntimeError(f'Task failed: {st}')
         time.sleep(POLL_SECONDS)
     raise TimeoutError(f'Task {tid} timed out')
 
 
-def run_remote(code,max_wait=300):
-    return wait_task(submit(code),max_wait)
+def run_remote(code,max_wait=300): return wait_task(submit(code),max_wait)
 
 
 def extract(text,a,b):
@@ -78,8 +80,8 @@ def main():
     online={n.get('node_id') for n in state.get('nodes',[]) if n.get('status')=='online'}
     print('ONLINE|'+','.join(sorted(online)),flush=True)
     if TARGET not in online: return 31
-    code=SCRIPT_PATH.read_text(encoding='utf-8')
-    tid=submit(code); print(f'FINAL_STAGE_TASK|{tid}',flush=True)
+    loader=f'''\nimport traceback, urllib.request\nprint("REMOTE_LOADER_START", flush=True)\ntry:\n    src=urllib.request.urlopen({REMOTE_SCRIPT_URL!r}, timeout=30).read().decode("utf-8")\n    print("REMOTE_SCRIPT_BYTES|"+str(len(src)), flush=True)\n    exec(compile(src, "paper2_final_stage.py", "exec"), {{"__name__":"__main__"}})\nexcept Exception:\n    traceback.print_exc()\n    print("PAPER2_FINAL_STAGE_EXCEPTION", flush=True)\n'''
+    tid=submit(loader); print(f'FINAL_STAGE_TASK|{tid}',flush=True)
     output=wait_task(tid,MAX_EXPERIMENT_WAIT)
     LOCAL_DIR.mkdir(parents=True,exist_ok=True)
     (LOCAL_DIR/'final_stage_remote_output.txt').write_text(output,encoding='utf-8')
