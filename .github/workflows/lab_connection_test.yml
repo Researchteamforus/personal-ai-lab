@@ -8,6 +8,10 @@ on:
       - "github_dispatch.py"
       - "experiments/**"
 
+permissions:
+  contents: read
+  actions: read
+
 concurrency:
   group: paper2-personal-ai-lab
   cancel-in-progress: true
@@ -30,6 +34,8 @@ jobs:
         run: python -m pip install --disable-pip-version-check requests
 
       - name: Run Paper 2 Personal AI Lab dispatcher
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python github_dispatch.py
 
       - name: Upload Paper 2 outputs to GitHub
