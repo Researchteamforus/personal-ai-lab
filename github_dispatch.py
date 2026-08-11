@@ -2,7 +2,7 @@ import sys,time,hashlib,json
 from pathlib import Path
 import requests
 COORDINATOR_URL='https://miomiomiomizan-personal-ai-lab.hf.space';TARGET='Node10-GPU-T4-x2'
-SCRIPT_URL='https://raw.githubusercontent.com/Researchteamforus/personal-ai-lab/main/experiments/paper2_external_hiba.py'
+SCRIPT_PATH=Path('experiments/paper2_external_hiba.py')
 REMOTE_ARCHIVE='/kaggle/working/paper2_data/Paper2_HIBA_EXTERNAL_RESULTS.tar.gz';REMOTE_SHA='/kaggle/working/paper2_data/Paper2_HIBA_EXTERNAL_RESULTS.sha256';LOCAL=Path('paper2_artifacts')
 def req(method,url,**kw):
  r=requests.request(method,url,timeout=90,**kw);r.raise_for_status();return r.json()
@@ -40,7 +40,8 @@ def transfer(rp,lp):
 def main():
  state=req('GET',f'{COORDINATOR_URL}/get_state');online={n['node_id'] for n in state.get('nodes',[]) if n.get('status')=='online'};print('ONLINE|'+','.join(sorted(online)),flush=True)
  if TARGET not in online:return 31
- loader=f'''import urllib.request,traceback\nprint("HIBA_LOADER_START",flush=True)\ntry:\n src=urllib.request.urlopen({SCRIPT_URL!r},timeout=30).read().decode("utf-8")\n print("HIBA_SCRIPT_BYTES|"+str(len(src)),flush=True)\n exec(compile(src,"paper2_external_hiba.py","exec"),{{"__name__":"__main__"}})\nexcept Exception:\n traceback.print_exc();print("HIBA_EXTERNAL_EXCEPTION",flush=True)\n'''
+ src=SCRIPT_PATH.read_text(encoding='utf-8')
+ loader="import traceback\nprint('HIBA_LOADER_START',flush=True)\ntry:\n src="+repr(src)+"\n print('HIBA_SCRIPT_BYTES|'+str(len(src)),flush=True)\n exec(compile(src,'paper2_external_hiba.py','exec'),{'__name__':'__main__'})\nexcept Exception:\n traceback.print_exc();print('HIBA_EXTERNAL_EXCEPTION',flush=True)\n"
  out=wait(submit(loader),4800);LOCAL.mkdir(exist_ok=True);(LOCAL/'hiba_external_remote_output.txt').write_text(out,encoding='utf-8')
  if 'PAPER2_HIBA_EXTERNAL_DONE' not in out:raise RuntimeError('HIBA completion marker missing')
  meta=transfer(REMOTE_ARCHIVE,LOCAL/'Paper2_HIBA_EXTERNAL_RESULTS.tar.gz');sha=remote(f"from pathlib import Path;print(Path({REMOTE_SHA!r}).read_text())").strip();(LOCAL/'Paper2_HIBA_EXTERNAL_RESULTS.sha256').write_text(sha+'\n',encoding='utf-8');print('HIBA_TRANSFER_VERIFIED|'+json.dumps(meta,sort_keys=True),flush=True);print('PAPER2_HIBA_GITHUB_READY',flush=True);return 0
