@@ -1,0 +1,290 @@
+{
+  "conventional_augmentation": {
+    "best_epoch": 12,
+    "best_val_macro_f1": 0.7536466036094457,
+    "image_level": {
+      "deterministic": {
+        "accuracy": 0.7752016129032258,
+        "aurc": 0.06870162005053115,
+        "brier": 0.340952247342267,
+        "eaurc": 0.041294520450687516,
+        "ece15": 0.12918896670202012,
+        "error_auprc": 0.5197522031793773,
+        "error_auroc": 0.8345822132289913,
+        "macro_f1": 0.6454309928712886,
+        "melanoma_recall": 0.5053763440860215,
+        "n": 992,
+        "nll": 0.7254933644265268,
+        "weighted_f1": 0.7799905247494408
+      },
+      "mc": {
+        "accuracy": 0.7762096774193549,
+        "aurc": 0.06838870199289483,
+        "brier": 0.33848815746670846,
+        "eaurc": 0.04123763263393398,
+        "ece15": 0.12692179140144638,
+        "error_auprc": 0.5151529953979119,
+        "error_auroc": 0.834087984087984,
+        "macro_f1": 0.6458714484607488,
+        "melanoma_recall": 0.5053763440860215,
+        "n": 992,
+        "nll": 0.7139572145467468,
+        "weighted_f1": 0.7807747863618306
+      }
+    },
+    "lesion_level": {
+      "det_60": {
+        "automatic_melanoma_miss_rate": 0.05454545454545454,
+        "coverage": 0.613941018766756,
+        "melanoma_coverage": 0.18181818181818182,
+        "melanoma_fn_escape_rate": 0.1111111111111111,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 3,
+        "retained_melanoma_n": 10,
+        "retained_melanoma_sensitivity": 0.7,
+        "selective_accuracy": 0.9694323144104804,
+        "selective_macro_f1": 0.8527627825323678
+      },
+      "det_ucb10": {
+        "automatic_melanoma_miss_rate": 0.05454545454545454,
+        "coverage": 0.6166219839142091,
+        "melanoma_coverage": 0.18181818181818182,
+        "melanoma_fn_escape_rate": 0.1111111111111111,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 3,
+        "retained_melanoma_n": 10,
+        "retained_melanoma_sensitivity": 0.7,
+        "selective_accuracy": 0.9695652173913043,
+        "selective_macro_f1": 0.852771301074987
+      },
+      "deterministic": {
+        "accuracy": 0.8324396782841823,
+        "aurc": 0.03765021768264162,
+        "brier": 0.24771709610419185,
+        "eaurc": 0.022754824986596124,
+        "ece15": 0.08103783033545403,
+        "error_auprc": 0.5007702502999051,
+        "error_auroc": 0.8746795491143318,
+        "macro_f1": 0.6626625781903362,
+        "melanoma_recall": 0.509090909090909,
+        "n": 746,
+        "nll": 0.5072258897280154,
+        "weighted_f1": 0.8353573657631778
+      },
+      "deterministic_calibrated": {
+        "brier": 0.23370462721891014,
+        "ece15": 0.044834392292989904,
+        "nll": 0.4455416589002234
+      },
+      "mc": {
+        "accuracy": 0.8351206434316354,
+        "aurc": 0.0374464107171563,
+        "brier": 0.24617978001426555,
+        "eaurc": 0.023038378806954238,
+        "ece15": 0.07839263255407528,
+        "error_auprc": 0.48005004585550953,
+        "error_auroc": 0.871132338931736,
+        "macro_f1": 0.6651976541913839,
+        "melanoma_recall": 0.509090909090909,
+        "n": 746,
+        "nll": 0.5006784202660138,
+        "weighted_f1": 0.8376754871337674
+      },
+      "mc_60": {
+        "automatic_melanoma_miss_rate": 0.05454545454545454,
+        "coverage": 0.6152815013404825,
+        "melanoma_coverage": 0.18181818181818182,
+        "melanoma_fn_escape_rate": 0.1111111111111111,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 3,
+        "retained_melanoma_n": 10,
+        "retained_melanoma_sensitivity": 0.7,
+        "selective_accuracy": 0.9738562091503268,
+        "selective_macro_f1": 0.8568595602554245
+      },
+      "mc_calibrated": {
+        "brier": 0.2330862884569525,
+        "ece15": 0.04387169533936198,
+        "nll": 0.44406353927242903
+      },
+      "mc_ucb10": {
+        "automatic_melanoma_miss_rate": 0.05454545454545454,
+        "coverage": 0.6152815013404825,
+        "melanoma_coverage": 0.18181818181818182,
+        "melanoma_fn_escape_rate": 0.1111111111111111,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 3,
+        "retained_melanoma_n": 10,
+        "retained_melanoma_sensitivity": 0.7,
+        "selective_accuracy": 0.9738562091503268,
+        "selective_macro_f1": 0.8568595602554245
+      },
+      "n_lesions": 746
+    },
+    "oof_score_selection_eaurc": {
+      "ee": 0.019106137236365076,
+      "mi": 0.024064612491688356,
+      "msp": 0.018820769913825502,
+      "pe": 0.019122992287549406
+    },
+    "seed": 9601,
+    "selected_mc_score": "msp",
+    "temperatures": {
+      "det": 1.3888970073513167,
+      "mc": 1.3660234274332665
+    },
+    "thresholds": {
+      "lesion_det_60": 0.025419175624847412,
+      "lesion_det_ucb10": 0.026939094066619873,
+      "lesion_det_validation_u95": 0.08695652173913043,
+      "lesion_mc_60": 0.027027367439907857,
+      "lesion_mc_ucb10": 0.026861009185110363,
+      "lesion_mc_validation_u95": 0.08695652173913043
+    },
+    "training_transform": "conventional_augmentation"
+  },
+  "no_additional_augmentation": {
+    "best_epoch": 16,
+    "best_val_macro_f1": 0.7269604961824779,
+    "image_level": {
+      "deterministic": {
+        "accuracy": 0.8185483870967742,
+        "aurc": 0.05798113437095041,
+        "brier": 0.30230923251075376,
+        "eaurc": 0.040421578694355774,
+        "ece15": 0.11763793495934691,
+        "error_auprc": 0.4585813454099255,
+        "error_auroc": 0.8105671866447728,
+        "macro_f1": 0.6595992574251753,
+        "melanoma_recall": 0.6021505376344086,
+        "n": 992,
+        "nll": 0.8272721808381175,
+        "weighted_f1": 0.8247342273733209
+      },
+      "mc": {
+        "accuracy": 0.8165322580645161,
+        "aurc": 0.05800162105234061,
+        "brier": 0.30180844539481955,
+        "eaurc": 0.04003590590964368,
+        "ece15": 0.11655307041965345,
+        "error_auprc": 0.4757201908938706,
+        "error_auroc": 0.8142314475647809,
+        "macro_f1": 0.6582562539033808,
+        "melanoma_recall": 0.6021505376344086,
+        "n": 992,
+        "nll": 0.8159685370361599,
+        "weighted_f1": 0.8226554200751581
+      }
+    },
+    "lesion_level": {
+      "det_60": {
+        "automatic_melanoma_miss_rate": 0.09090909090909091,
+        "coverage": 0.6340482573726541,
+        "melanoma_coverage": 0.2909090909090909,
+        "melanoma_fn_escape_rate": 0.25,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 5,
+        "retained_melanoma_n": 16,
+        "retained_melanoma_sensitivity": 0.6875,
+        "selective_accuracy": 0.9640591966173362,
+        "selective_macro_f1": 0.8744646040234275
+      },
+      "det_ucb10": {
+        "automatic_melanoma_miss_rate": 0.09090909090909091,
+        "coverage": 0.6541554959785523,
+        "melanoma_coverage": 0.2909090909090909,
+        "melanoma_fn_escape_rate": 0.25,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 5,
+        "retained_melanoma_n": 16,
+        "retained_melanoma_sensitivity": 0.6875,
+        "selective_accuracy": 0.9651639344262295,
+        "selective_macro_f1": 0.8861062808626798
+      },
+      "deterministic": {
+        "accuracy": 0.8672922252010724,
+        "aurc": 0.031088062198746543,
+        "brier": 0.21163182868594202,
+        "eaurc": 0.021864795049705753,
+        "ece15": 0.0790785015036271,
+        "error_auprc": 0.46867967117663256,
+        "error_auroc": 0.8551590089457168,
+        "macro_f1": 0.6885333592355275,
+        "melanoma_recall": 0.6363636363636364,
+        "n": 746,
+        "nll": 0.5445980011370506,
+        "weighted_f1": 0.8704059499416831
+      },
+      "deterministic_calibrated": {
+        "brier": 0.20513600885085356,
+        "ece15": 0.0525217047329705,
+        "nll": 0.41711684134508237
+      },
+      "mc": {
+        "accuracy": 0.8659517426273459,
+        "aurc": 0.031097578110993118,
+        "brier": 0.21157714574890915,
+        "eaurc": 0.02168241799605318,
+        "ece15": 0.07636308896852351,
+        "error_auprc": 0.47809754246997843,
+        "error_auroc": 0.8575077399380805,
+        "macro_f1": 0.6873286767340704,
+        "melanoma_recall": 0.6363636363636364,
+        "n": 746,
+        "nll": 0.5391961139382764,
+        "weighted_f1": 0.8688941350583288
+      },
+      "mc_60": {
+        "automatic_melanoma_miss_rate": 0.09090909090909091,
+        "coverage": 0.6353887399463807,
+        "melanoma_coverage": 0.2909090909090909,
+        "melanoma_fn_escape_rate": 0.25,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 5,
+        "retained_melanoma_n": 16,
+        "retained_melanoma_sensitivity": 0.6875,
+        "selective_accuracy": 0.9641350210970464,
+        "selective_macro_f1": 0.8744700479950142
+      },
+      "mc_calibrated": {
+        "brier": 0.2053628289877143,
+        "ece15": 0.048203110478823426,
+        "nll": 0.41713128508639746
+      },
+      "mc_ucb10": {
+        "automatic_melanoma_miss_rate": 0.09090909090909091,
+        "coverage": 0.6541554959785523,
+        "melanoma_coverage": 0.2909090909090909,
+        "melanoma_fn_escape_rate": 0.25,
+        "melanoma_n": 55,
+        "retained_melanoma_fn": 5,
+        "retained_melanoma_n": 16,
+        "retained_melanoma_sensitivity": 0.6875,
+        "selective_accuracy": 0.9651639344262295,
+        "selective_macro_f1": 0.8861062808626798
+      },
+      "n_lesions": 746
+    },
+    "oof_score_selection_eaurc": {
+      "ee": 0.016697129342768128,
+      "mi": 0.02155680411737456,
+      "msp": 0.016626912272200492,
+      "pe": 0.016677419868357513
+    },
+    "seed": 9601,
+    "selected_mc_score": "msp",
+    "temperatures": {
+      "det": 1.8199409839687428,
+      "mc": 1.7943535802427417
+    },
+    "thresholds": {
+      "lesion_det_60": 0.00396120548248291,
+      "lesion_det_ucb10": 0.006134510040283203,
+      "lesion_det_validation_u95": 0.08695652173913043,
+      "lesion_mc_60": 0.004700104700887997,
+      "lesion_mc_ucb10": 0.0070104100327758045,
+      "lesion_mc_validation_u95": 0.08695652173913043
+    },
+    "training_transform": "no_additional_augmentation"
+  }
+}
