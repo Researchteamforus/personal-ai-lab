@@ -126,6 +126,8 @@ def main():
         raise RuntimeError('Coordinator already has a running task: ' + str(execution.get('current_task_id')))
 
     src = SCRIPT.read_text(encoding='utf-8')
+    src = src.replace("    'b44f0ce87fe6': 'crossfit_outer_0_1_2',", "    'b44f0ce87fe6': 'crossfit_outer_0_1_2',\n    'ba2fb72d4fd2': 'crossfit_outer_0_1_2',")
+    src = src.replace("    '836b08d4b34d': 'crossfit_outer_3_4_augmentation',", "    '836b08d4b34d': 'crossfit_outer_3_4_augmentation',\n    'd7611877b997': 'crossfit_outer_3_4_augmentation',")
     wrapper = "src=SCRIPT_TEXT\nexec(compile(src,'paper2_focused_revision_20260820.py','exec'),{'__name__':'__main__'})\n".replace('SCRIPT_TEXT', repr(src))
     tid = submit(wrapper, targets)
     print('FOCUSED_TASK|' + tid, flush=True)
