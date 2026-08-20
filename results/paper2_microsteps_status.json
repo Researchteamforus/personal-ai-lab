@@ -1,52 +1,52 @@
 {
   "all_core_done": false,
-  "checked_at": 1787233827.3949418,
-  "core_completed_steps": 580,
-  "core_percent": 58.0,
+  "checked_at": 1787234130.1121933,
+  "core_completed_steps": 625,
+  "core_percent": 62.5,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
     "Node10-GPU-T4-x2": {
       "augmentation_assigned": true,
-      "completed_core_units": 280,
+      "completed_core_units": 305,
       "current_fold": 4,
-      "current_inner": 1,
+      "current_inner": 2,
       "fold_units": {
         "3": 200,
-        "4": 80
+        "4": 105
       },
-      "last_line": "MC|10/30",
+      "last_line": "TRAIN|{\"epoch\": 5, \"train_loss\": 0.09757117769871482, \"train_macro_f1\": 0.9317631785043011, \"val_macro_f1\": 0.687554173804719, \"val_accuracy\": 0.8027850959729018}",
       "latest_metrics": {
-        "epoch": 8,
-        "train_loss": 0.04358019585832046,
-        "train_macro_f1": 0.9706594487229973,
-        "val_accuracy": 0.7998514667656889,
-        "val_macro_f1": 0.663987442847871
+        "epoch": 5,
+        "train_loss": 0.09757117769871482,
+        "train_macro_f1": 0.9317631785043011,
+        "val_accuracy": 0.8027850959729018,
+        "val_macro_f1": 0.687554173804719
       },
-      "phase": "inner_mc",
+      "phase": "inner_train",
       "pid": 819,
       "process_alive": true,
       "status": "running"
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 300,
+      "completed_core_units": 320,
       "current_fold": 1,
       "current_inner": 2,
       "fold_units": {
         "0": 200,
-        "1": 100,
+        "1": 120,
         "2": 0
       },
-      "last_line": "CROSSFIT_INNER|outer=1|inner=2|tr=5311|val=2678|seed=12102",
+      "last_line": "EARLY_STOP|9",
       "latest_metrics": {
-        "epoch": 20,
-        "train_loss": 0.010931385032607857,
-        "train_macro_f1": 0.9931949368408628,
-        "val_accuracy": 0.7820996978851964,
-        "val_macro_f1": 0.6456513192323973
+        "epoch": 9,
+        "train_loss": 0.10944151134701732,
+        "train_macro_f1": 0.9237074142797318,
+        "val_accuracy": 0.7210604929051531,
+        "val_macro_f1": 0.5237780066337173
       },
-      "phase": "inner_train",
+      "phase": "inner_mc",
       "pid": 875,
       "process_alive": true,
       "status": "running"
