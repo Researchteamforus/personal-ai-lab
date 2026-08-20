@@ -9,28 +9,29 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Query coordinator and persist status
+      - name: Query coordinator and persist compact status
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # focused monitor 1
+          # focused monitor compact
           python - <<'PY'
           import base64, json, os, urllib.request, urllib.error
           base='https://miomiomiomizan-personal-ai-lab.hf.space'
           repo='Researchteamforus/personal-ai-lab'
           state=json.load(urllib.request.urlopen(base+'/get_state',timeout=30))
-          tid=state.get('execution',{}).get('current_task_id')
+          ex=state.get('execution',{})
+          tid=ex.get('current_task_id')
           task=None
           if tid:
               try:
-                  task=json.load(urllib.request.urlopen(base+'/get_task_result/'+tid,timeout=30))
+                  raw=json.load(urllib.request.urlopen(base+'/get_task_result/'+tid,timeout=30))
+                  task={'status':raw.get('status'),'response_nodes':list(raw.get('responses',{}).keys()),'n_responses':len(raw.get('responses',{}))}
               except Exception as e:
                   task={'error':repr(e)}
           payload={
-              'execution':state.get('execution',{}),
-              'nodes':state.get('nodes',[]),
-              'logs':state.get('logs',[])[:30],
-              'task_id':tid,
+              'execution':{'status':ex.get('status'),'current_task_id':tid,'node_targets':ex.get('node_targets',[]),'progress':ex.get('progress')},
+              'nodes':[{'node_id':n.get('node_id'),'status':n.get('status'),'tasks_completed':n.get('tasks_completed'),'last_ping':n.get('last_ping'),'gpu_name':n.get('gpu_name')} for n in state.get('nodes',[])],
+              'logs':state.get('logs',[])[:20],
               'task':task,
           }
           text=json.dumps(payload,indent=2,default=str)
@@ -44,13 +45,9 @@ jobs:
               with urllib.request.urlopen(req,timeout=30) as r: sha=json.load(r).get('sha')
           except urllib.error.HTTPError as e:
               if e.code!=404: raise
-          body={'message':'Persist current AI Lab status','content':base64.b64encode(text.encode()).decode()}
+          body={'message':'Persist compact AI Lab status','content':base64.b64encode(text.encode()).decode()}
           if sha: body['sha']=sha
           req=urllib.request.Request(api,data=json.dumps(body).encode(),headers=headers,method='PUT')
           with urllib.request.urlopen(req,timeout=30) as r: print(r.status)
-          print('EXEC_STATUS',state.get('execution',{}).get('status'))
-          print('EXEC_TASK',tid)
-          print('TASK_STATUS',task.get('status') if isinstance(task,dict) else None)
-          print('RESPONSES',list((task or {}).get('responses',{}).keys()) if isinstance(task,dict) else [])
-          for n in state.get('nodes',[]): print('NODE',n.get('node_id'),n.get('status'),n.get('tasks_completed'),n.get('last_ping'))
+          print(text)
           PY
