@@ -1,50 +1,48 @@
 {
   "all_core_done": false,
-  "checked_at": 1787232006.5838423,
-  "core_completed_steps": 292,
-  "core_percent": 29.2,
+  "checked_at": 1787232310.368653,
+  "core_completed_steps": 345,
+  "core_percent": 34.5,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
     "Node10-GPU-T4-x2": {
       "augmentation_assigned": true,
-      "completed_core_units": 140,
+      "completed_core_units": 155,
       "current_fold": 3,
-      "current_inner": 2,
+      "current_inner": null,
       "fold_units": {
-        "3": 140,
+        "3": 155,
         "4": 0
       },
-      "last_line": "MC|20/30",
+      "last_line": "FINAL_TRAIN|{\"epoch\": 5, \"train_loss\": 0.1476300605317747, \"train_macro_f1\": 0.9008083993429717}",
       "latest_metrics": {
-        "epoch": 15,
-        "train_loss": 0.06934999083318572,
-        "train_macro_f1": 0.9584364258799777,
-        "val_accuracy": 0.8006872852233677,
-        "val_macro_f1": 0.6521323614129498
+        "epoch": 5,
+        "train_loss": 0.1476300605317747,
+        "train_macro_f1": 0.9008083993429717
       },
-      "phase": "inner_mc",
+      "phase": "final_train",
       "pid": 819,
       "process_alive": true,
       "status": "running"
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 152,
+      "completed_core_units": 190,
       "current_fold": 0,
       "current_inner": null,
       "fold_units": {
-        "0": 152,
+        "0": 190,
         "1": 0,
         "2": 0
       },
-      "last_line": "FINAL_TRAIN|{\"epoch\": 2, \"train_loss\": 0.5822564214616273, \"train_macro_f1\": 0.6750549161162548}",
+      "last_line": "MC|20/30",
       "latest_metrics": {
-        "epoch": 2,
-        "train_loss": 0.5822564214616273,
-        "train_macro_f1": 0.6750549161162548
+        "epoch": 5,
+        "train_loss": 0.1307896019659232,
+        "train_macro_f1": 0.9182180823865291
       },
-      "phase": "final_train",
+      "phase": "final_mc",
       "pid": 875,
       "process_alive": true,
       "status": "running"
