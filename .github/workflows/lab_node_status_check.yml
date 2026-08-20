@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          # progress recheck 3
+          # lab-on preflight 2026-08-20
           python - <<'PY'
           import json, urllib.request
           base='https://miomiomiomizan-personal-ai-lab.hf.space'
