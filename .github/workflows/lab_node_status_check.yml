@@ -13,7 +13,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # focused monitor compact
+          # focused monitor 2
           python - <<'PY'
           import base64, json, os, urllib.request, urllib.error
           base='https://miomiomiomizan-personal-ai-lab.hf.space'
