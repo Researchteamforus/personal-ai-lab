@@ -1,58 +1,62 @@
 {
   "execution": {
-    "status": "running",
-    "current_task_id": "dade52b6-610f-4f56-ab2f-35e51184d700",
+    "status": "completed",
+    "current_task_id": "9fd88672-175b-470f-907c-a36ab00a3a3b",
     "node_targets": [
+      "Node2-GPU-T4-x2",
       "Node10-GPU-T4-x2"
     ],
-    "progress": 0.0
+    "progress": 100.0
   },
   "nodes": [
     {
       "node_id": "Node2-GPU-T4-x2",
       "status": "online",
-      "tasks_completed": 548,
-      "last_ping": 1787221771.0726917,
+      "tasks_completed": 550,
+      "last_ping": 1787229808.8619347,
       "gpu_name": "Tesla T4"
     },
     {
       "node_id": "Node10-GPU-T4-x2",
       "status": "online",
-      "tasks_completed": 421,
-      "last_ping": 1787221769.4917233,
+      "tasks_completed": 459,
+      "last_ping": 1787229808.1084657,
       "gpu_name": "Tesla T4"
     }
   ],
   "logs": [
     {
-      "time": "20/08/2026, 10:29:30",
-      "event": "Dispatched ML Task",
-      "details": "Task ID: dade52b6-610f-4f56-ab2f-35e51184d700 sent to 1 nodes for execution."
-    },
-    {
-      "time": "20/08/2026, 10:29:29",
+      "time": "20/08/2026, 12:42:51",
       "event": "Distributed Task Completed",
-      "details": "Task ID: 484286bd-3065-40b4-a01b-a26a0f4136bb executed successfully across all active targets."
+      "details": "Task ID: 9fd88672-175b-470f-907c-a36ab00a3a3b executed successfully across all active targets."
     },
     {
-      "time": "20/08/2026, 10:29:29",
+      "time": "20/08/2026, 12:42:51",
       "event": "Execution completed on 'Node10-GPU-T4-x2'",
-      "details": "Task ID: 484286bd-3065-40b4-a01b-a26a0f4136bb. Execution finished successfully."
+      "details": "Task ID: 9fd88672-175b-470f-907c-a36ab00a3a3b failed: Traceback (most recent call last):\n  File \"/kaggle/working/client.py\", line 98, in execute_user_code\n    exec(code, local_env)\n  File \"<string>\", line 1\n    import json,os\\nfrom pathlib import Path\\nr=Path('/kaggle/working/paper2_microsteps');pid=None;alive=False\\ntry: pid=int((r/'worker.pid').read_text());os.kill(pid,0);alive=True\\nexcept Exception: pass\\no={'pid':pid,'alive':alive,'log':(r/'worker.log').read_text(encoding='utf-8',errors='replace') if (r/'worker.log').exists() else '','summaries':{},'augmentation':None}\\nfor f in range(5):\\n p=Path(f'/kaggle/working/paper2_data/focused_revision_20260820/crossfit/outer_{f}/summary.json')\\n if p.exists():\\n  try:o['summaries'][str(f)]=json.loads(p.read_text())\\n  except Exception:pass\\np=Path('/kaggle/working/paper2_data/focused_revision_20260820/augmentation_sensitivity/paired_summary.json')\\nif p.exists():\\n try:o['augmentation']=json.loads(p.read_text())\\n except Exception:pass\\nprint('<<<S>>>');print(json.dumps(o,default=str));print('<<<E>>>')\n                   ^\nSyntaxError: unexpected character after line continuation character\n"
     },
     {
-      "time": "20/08/2026, 10:29:28",
+      "time": "20/08/2026, 12:42:51",
+      "event": "Execution completed on 'Node2-GPU-T4-x2'",
+      "details": "Task ID: 9fd88672-175b-470f-907c-a36ab00a3a3b failed: Traceback (most recent call last):\n  File \"/kaggle/working/client.py\", line 98, in execute_user_code\n    exec(code, local_env)\n  File \"<string>\", line 1\n    import json,os\\nfrom pathlib import Path\\nr=Path('/kaggle/working/paper2_microsteps');pid=None;alive=False\\ntry: pid=int((r/'worker.pid').read_text());os.kill(pid,0);alive=True\\nexcept Exception: pass\\no={'pid':pid,'alive':alive,'log':(r/'worker.log').read_text(encoding='utf-8',errors='replace') if (r/'worker.log').exists() else '','summaries':{},'augmentation':None}\\nfor f in range(5):\\n p=Path(f'/kaggle/working/paper2_data/focused_revision_20260820/crossfit/outer_{f}/summary.json')\\n if p.exists():\\n  try:o['summaries'][str(f)]=json.loads(p.read_text())\\n  except Exception:pass\\np=Path('/kaggle/working/paper2_data/focused_revision_20260820/augmentation_sensitivity/paired_summary.json')\\nif p.exists():\\n try:o['augmentation']=json.loads(p.read_text())\\n except Exception:pass\\nprint('<<<S>>>');print(json.dumps(o,default=str));print('<<<E>>>')\n                   ^\nSyntaxError: unexpected character after line continuation character\n"
+    },
+    {
+      "time": "20/08/2026, 12:42:50",
       "event": "Dispatched ML Task",
-      "details": "Task ID: 484286bd-3065-40b4-a01b-a26a0f4136bb sent to 1 nodes for execution."
+      "details": "Task ID: 9fd88672-175b-470f-907c-a36ab00a3a3b sent to 2 nodes for execution."
     },
     {
-      "time": "20/08/2026, 10:29:27",
+      "time": "20/08/2026, 12:42:49",
       "event": "Distributed Task Completed",
-      "details": "Task ID: af91337e-de57-40fd-b722-1b597fb92ead executed successfully across all active targets."
+      "details": "Task ID: 10d28181-deb1-4d11-9108-abe01e22eefc executed successfully across all active targets."
     }
   ],
   "task": {
-    "status": "running",
-    "response_nodes": [],
-    "n_responses": 0
+    "status": "completed",
+    "response_nodes": [
+      "Node2-GPU-T4-x2",
+      "Node10-GPU-T4-x2"
+    ],
+    "n_responses": 2
   }
 }
