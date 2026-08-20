@@ -1,8 +1,8 @@
 {
   "all_core_done": false,
-  "checked_at": 1787235646.4065142,
-  "core_completed_steps": 855,
-  "core_percent": 85.5,
+  "checked_at": 1787235950.3914697,
+  "core_completed_steps": 864,
+  "core_percent": 86.4,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
@@ -15,7 +15,7 @@
         "3": 200,
         "4": 200
       },
-      "last_line": "TRAIN|{\"epoch\": 12, \"train_loss\": 0.023596114470519746, \"train_macro_f1\": 0.9839851785371041, \"val_macro_f1\": 0.6540357356835717, \"val_accuracy\": 0.798219584569733}",
+      "last_line": "AUGMENTATION_MODEL|conventional_augmentation|seed=9601",
       "latest_metrics": {
         "epoch": 6,
         "train_loss": 0.08159495274084803,
@@ -28,21 +28,21 @@
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 455,
+      "completed_core_units": 464,
       "current_fold": 2,
       "current_inner": 1,
       "fold_units": {
         "0": 200,
         "1": 200,
-        "2": 55
+        "2": 64
       },
-      "last_line": "TRAIN|{\"epoch\": 5, \"train_loss\": 0.12444189624200395, \"train_macro_f1\": 0.9192452274596556, \"val_macro_f1\": 0.613825120172833, \"val_accuracy\": 0.7809345794392524}",
+      "last_line": "TRAIN|{\"epoch\": 14, \"train_loss\": 0.08926318067826652, \"train_macro_f1\": 0.9349261128497882, \"val_macro_f1\": 0.6605411277543484, \"val_accuracy\": 0.7925233644859813}",
       "latest_metrics": {
-        "epoch": 5,
-        "train_loss": 0.12444189624200395,
-        "train_macro_f1": 0.9192452274596556,
-        "val_accuracy": 0.7809345794392524,
-        "val_macro_f1": 0.613825120172833
+        "epoch": 14,
+        "train_loss": 0.08926318067826652,
+        "train_macro_f1": 0.9349261128497882,
+        "val_accuracy": 0.7925233644859813,
+        "val_macro_f1": 0.6605411277543484
       },
       "phase": "inner_train",
       "pid": 875,
