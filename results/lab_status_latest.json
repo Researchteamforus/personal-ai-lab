@@ -1,30 +1,45 @@
 {
   "execution": {
-    "status": "completed",
-    "current_task_id": "3cbb24bf-05c1-4be1-bd48-5e2774bdbb72",
+    "status": "running",
+    "current_task_id": "09185983-f442-4a06-8ea1-8d5ff22aee43",
     "node_targets": [
       "Node2-GPU-T4-x2",
       "Node10-GPU-T4-x2"
     ],
-    "progress": 100.0
+    "progress": 0.0
   },
   "nodes": [
     {
       "node_id": "Node2-GPU-T4-x2",
-      "status": "online",
+      "status": "offline",
       "tasks_completed": 1,
-      "last_ping": 1787211140.2320569,
+      "last_ping": 1787211274.3924632,
       "gpu_name": "Tesla T4"
     },
     {
       "node_id": "Node10-GPU-T4-x2",
-      "status": "online",
+      "status": "offline",
       "tasks_completed": 1,
-      "last_ping": 1787211139.1436017,
+      "last_ping": 1787211275.7330534,
       "gpu_name": "Tesla T4"
     }
   ],
   "logs": [
+    {
+      "time": "20/08/2026, 07:34:57",
+      "event": "Node went Offline: 'Node10-GPU-T4-x2'",
+      "details": "Heartbeat timeout: Node disconnected from coordinator."
+    },
+    {
+      "time": "20/08/2026, 07:34:57",
+      "event": "Node went Offline: 'Node2-GPU-T4-x2'",
+      "details": "Heartbeat timeout: Node disconnected from coordinator."
+    },
+    {
+      "time": "20/08/2026, 07:34:34",
+      "event": "Dispatched ML Task",
+      "details": "Task ID: 09185983-f442-4a06-8ea1-8d5ff22aee43 sent to 2 nodes for execution."
+    },
     {
       "time": "20/08/2026, 07:31:23",
       "event": "Distributed Task Completed",
@@ -34,29 +49,11 @@
       "time": "20/08/2026, 07:31:23",
       "event": "Execution completed on 'Node2-GPU-T4-x2'",
       "details": "Task ID: 3cbb24bf-05c1-4be1-bd48-5e2774bdbb72 failed: Traceback (most recent call last):\n  File \"/kaggle/working/client.py\", line 98, in execute_user_code\n    exec(code, local_env)\n  File \"<string>\", line 2, in <module>\n  File \"paper2_focused_revision_20260820.py\", line 771, in <module>\n  File \"paper2_focused_revision_20260820.py\", line 744, in main\nRuntimeError: Unknown worker hostname ba2fb72d4fd2\n"
-    },
-    {
-      "time": "20/08/2026, 07:31:23",
-      "event": "Execution completed on 'Node10-GPU-T4-x2'",
-      "details": "Task ID: 3cbb24bf-05c1-4be1-bd48-5e2774bdbb72 failed: Traceback (most recent call last):\n  File \"/kaggle/working/client.py\", line 98, in execute_user_code\n    exec(code, local_env)\n  File \"<string>\", line 2, in <module>\n  File \"paper2_focused_revision_20260820.py\", line 771, in <module>\n  File \"paper2_focused_revision_20260820.py\", line 744, in main\nRuntimeError: Unknown worker hostname d7611877b997\n"
-    },
-    {
-      "time": "20/08/2026, 07:31:13",
-      "event": "Dispatched ML Task",
-      "details": "Task ID: 3cbb24bf-05c1-4be1-bd48-5e2774bdbb72 sent to 2 nodes for execution."
-    },
-    {
-      "time": "20/08/2026, 07:14:50",
-      "event": "Node Registered: 'Node10-GPU-T4-x2'",
-      "details": "Connected from 10.16.28.33. Hardware: GPU=Tesla T4 (14.6GB), RAM=31.3GB."
     }
   ],
   "task": {
-    "status": "completed",
-    "response_nodes": [
-      "Node10-GPU-T4-x2",
-      "Node2-GPU-T4-x2"
-    ],
-    "n_responses": 2
+    "status": "running",
+    "response_nodes": [],
+    "n_responses": 0
   }
 }
