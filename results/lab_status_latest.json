@@ -1,0 +1,54 @@
+{
+  "execution": {
+    "current_task_id": null,
+    "code_to_run": "",
+    "status": "idle",
+    "node_targets": [],
+    "progress": 0.0,
+    "responses": {}
+  },
+  "nodes": [
+    {
+      "node_id": "Node2-GPU-T4-x2",
+      "status": "online",
+      "last_ping": 1787210848.1713219,
+      "total_ram": 31.34774398803711,
+      "total_threads": 4,
+      "gpu_name": "Tesla T4",
+      "gpu_vram": 14.56219482421875,
+      "cpu_load": 0.8,
+      "ram_load": 4.7,
+      "tasks_completed": 0,
+      "connected_at": 1787209992.90034,
+      "ip": "10.16.18.93"
+    },
+    {
+      "node_id": "Node10-GPU-T4-x2",
+      "status": "online",
+      "last_ping": 1787210846.8296173,
+      "total_ram": 31.347736358642578,
+      "total_threads": 4,
+      "gpu_name": "Tesla T4",
+      "gpu_vram": 14.56219482421875,
+      "cpu_load": 0.6,
+      "ram_load": 4.6,
+      "tasks_completed": 0,
+      "connected_at": 1787210090.8785784,
+      "ip": "10.16.28.33"
+    }
+  ],
+  "logs": [
+    {
+      "time": "20/08/2026, 07:14:50",
+      "event": "Node Registered: 'Node10-GPU-T4-x2'",
+      "details": "Connected from 10.16.28.33. Hardware: GPU=Tesla T4 (14.6GB), RAM=31.3GB."
+    },
+    {
+      "time": "20/08/2026, 07:13:12",
+      "event": "Node Registered: 'Node2-GPU-T4-x2'",
+      "details": "Connected from 10.16.18.93. Hardware: GPU=Tesla T4 (14.6GB), RAM=31.3GB."
+    }
+  ],
+  "task_id": null,
+  "task": null
+}
