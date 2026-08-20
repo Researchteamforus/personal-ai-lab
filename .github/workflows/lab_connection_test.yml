@@ -19,7 +19,7 @@ concurrency:
 jobs:
   paper2-lab:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360
 
     steps:
       - name: Checkout repository
@@ -34,15 +34,48 @@ jobs:
         run: python -m pip install --disable-pip-version-check requests
 
       - name: Run Paper 2 Personal AI Lab dispatcher
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python github_dispatch.py
 
-      - name: Upload Paper 2 outputs to GitHub
+      - name: Upload dispatcher manifest and logs
         uses: actions/upload-artifact@v4
         with:
-          name: paper2-lab-output-${{ github.run_number }}
-          path: paper2_artifacts/*
+          name: paper2-focused-manifest-${{ github.run_number }}
+          path: |
+            paper2_artifacts/focused_revision_manifest.json
+            paper2_artifacts/remote_*.txt
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload crossfit outer 0-1
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-focused-crossfit-01-${{ github.run_number }}
+          path: |
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0_1.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0_1.tar.gz.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload crossfit outer 2-3
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-focused-crossfit-23-${{ github.run_number }}
+          path: |
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_2_3.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_2_3.tar.gz.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload crossfit outer 4 and augmentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-focused-crossfit-4-augmentation-${{ github.run_number }}
+          path: |
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_4_augmentation.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_4_augmentation.tar.gz.sha256
           if-no-files-found: error
           compression-level: 0
           retention-days: 90
