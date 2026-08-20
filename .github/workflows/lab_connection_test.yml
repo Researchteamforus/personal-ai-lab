@@ -47,35 +47,81 @@ jobs:
           compression-level: 0
           retention-days: 90
 
-      - name: Upload crossfit outer 0-1
+      - name: Upload outer fold 0
         uses: actions/upload-artifact@v4
         with:
-          name: paper2-focused-crossfit-01-${{ github.run_number }}
+          name: paper2-focused-outer0-${{ github.run_number }}
           path: |
-            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0_1.tar.gz
-            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0_1.tar.gz.sha256
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0.tar.gz.sha256
           if-no-files-found: error
           compression-level: 0
           retention-days: 90
 
-      - name: Upload crossfit outer 2-3
+      - name: Upload outer fold 1
         uses: actions/upload-artifact@v4
         with:
-          name: paper2-focused-crossfit-23-${{ github.run_number }}
+          name: paper2-focused-outer1-${{ github.run_number }}
           path: |
-            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_2_3.tar.gz
-            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_2_3.tar.gz.sha256
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_1.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_1.tar.gz.sha256
           if-no-files-found: error
           compression-level: 0
           retention-days: 90
 
-      - name: Upload crossfit outer 4 and augmentation
+      - name: Upload outer fold 2
         uses: actions/upload-artifact@v4
         with:
-          name: paper2-focused-crossfit-4-augmentation-${{ github.run_number }}
+          name: paper2-focused-outer2-${{ github.run_number }}
           path: |
-            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_4_augmentation.tar.gz
-            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_4_augmentation.tar.gz.sha256
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_2.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_2.tar.gz.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload outer fold 3
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-focused-outer3-${{ github.run_number }}
+          path: |
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_3.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_3.tar.gz.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload outer fold 4
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-focused-outer4-${{ github.run_number }}
+          path: |
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_4.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_4.tar.gz.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload augmentation sensitivity
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-focused-augmentation-${{ github.run_number }}
+          path: |
+            paper2_artifacts/Paper2_FOCUSED_augmentation_sensitivity.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_augmentation_sensitivity.tar.gz.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+
+      - name: Upload role summaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper2-focused-role-summaries-${{ github.run_number }}
+          path: |
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0_1_2_summary.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_0_1_2_summary.tar.gz.sha256
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_3_4_augmentation_summary.tar.gz
+            paper2_artifacts/Paper2_FOCUSED_crossfit_outer_3_4_augmentation_summary.tar.gz.sha256
           if-no-files-found: error
           compression-level: 0
           retention-days: 90

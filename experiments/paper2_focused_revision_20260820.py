@@ -23,9 +23,8 @@ IMG_DIR.mkdir(parents=True, exist_ok=True)
 
 HOST = socket.gethostname()
 HOST_ROLE = {
-    'b44f0ce87fe6': 'crossfit_outer_0_1',
-    '836b08d4b34d': 'crossfit_outer_2_3',
-    '7e5f29eab5cb': 'crossfit_outer_4_augmentation',
+    'b44f0ce87fe6': 'crossfit_outer_0_1_2',
+    '836b08d4b34d': 'crossfit_outer_3_4_augmentation',
 }
 ROLE = HOST_ROLE.get(HOST, 'unknown')
 CLASSES = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
@@ -730,13 +729,10 @@ def run_augmentation_pair(df):
     return results
 
 
-def archive_role(role, include_paths):
-    role_dir = OUTROOT / f'role_{role}'
-    role_dir.mkdir(parents=True, exist_ok=True)
-    archive = BASE / f'Paper2_FOCUSED_{role}.tar.gz'
+def archive_component(tag, path):
+    archive = BASE / f'Paper2_FOCUSED_{tag}.tar.gz'
     with tarfile.open(archive, 'w:gz', compresslevel=2) as tf:
-        for p, arc in include_paths:
-            tf.add(p, arcname=arc)
+        tf.add(path, arcname=tag)
     h = hashlib.sha256(archive.read_bytes()).hexdigest()
     Path(str(archive) + '.sha256').write_text(f'{h}  {archive.name}\n')
     print(f'FOCUSED_ARCHIVE|{archive}|{archive.stat().st_size}|{h}', flush=True)
@@ -749,28 +745,25 @@ def main():
     download_ham()
     df = metadata()
     summary = {'host': HOST, 'role': ROLE, 'started': time.time(), 'mc_T': MC_T, 'inner_folds': INNER_FOLDS, 'ucb_bootstrap_reps': UCB_BOOT}
-    include = []
-    if ROLE == 'crossfit_outer_0_1':
+    if ROLE == 'crossfit_outer_0_1_2':
+        folds = [0, 1, 2]
         summary['crossfit'] = {}
-        for f in [0, 1]:
+        for f in folds:
             summary['crossfit'][str(f)] = run_crossfit_outer(df, f)
-            include.append((OUTROOT / 'crossfit' / f'outer_{f}', f'crossfit/outer_{f}'))
-    elif ROLE == 'crossfit_outer_2_3':
+            archive_component(f'crossfit_outer_{f}', OUTROOT / 'crossfit' / f'outer_{f}')
+    elif ROLE == 'crossfit_outer_3_4_augmentation':
+        folds = [3, 4]
         summary['crossfit'] = {}
-        for f in [2, 3]:
+        for f in folds:
             summary['crossfit'][str(f)] = run_crossfit_outer(df, f)
-            include.append((OUTROOT / 'crossfit' / f'outer_{f}', f'crossfit/outer_{f}'))
-    elif ROLE == 'crossfit_outer_4_augmentation':
-        summary['crossfit'] = {'4': run_crossfit_outer(df, 4)}
+            archive_component(f'crossfit_outer_{f}', OUTROOT / 'crossfit' / f'outer_{f}')
         summary['augmentation_sensitivity'] = run_augmentation_pair(df)
-        include.append((OUTROOT / 'crossfit' / 'outer_4', 'crossfit/outer_4'))
-        include.append((OUTROOT / 'augmentation_sensitivity', 'augmentation_sensitivity'))
+        archive_component('augmentation_sensitivity', OUTROOT / 'augmentation_sensitivity')
     summary['finished'] = time.time()
     role_dir = OUTROOT / f'role_{ROLE}'
     role_dir.mkdir(parents=True, exist_ok=True)
     (role_dir / 'role_summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
-    include.append((role_dir, 'role_meta'))
-    archive_role(ROLE, include)
+    archive_component(f'{ROLE}_summary', role_dir)
     print('FOCUSED_REVISION_DONE|' + ROLE, flush=True)
 
 

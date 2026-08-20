@@ -3,11 +3,14 @@ from pathlib import Path
 import requests
 
 BASE = 'https://miomiomiomizan-personal-ai-lab.hf.space'
-TARGETS = ['Node2-GPU-T4-x2', 'Node10-GPU-T4-x2', 'Nabila-GPU-T4-x2']
+TARGETS = ['Node2-GPU-T4-x2', 'Node10-GPU-T4-x2']
 ROLES = {
-    'Node2-GPU-T4-x2': 'crossfit_outer_0_1',
-    'Node10-GPU-T4-x2': 'crossfit_outer_2_3',
-    'Nabila-GPU-T4-x2': 'crossfit_outer_4_augmentation',
+    'Node2-GPU-T4-x2': 'crossfit_outer_0_1_2',
+    'Node10-GPU-T4-x2': 'crossfit_outer_3_4_augmentation',
+}
+COMPONENTS = {
+    'Node2-GPU-T4-x2': ['crossfit_outer_0', 'crossfit_outer_1', 'crossfit_outer_2', 'crossfit_outer_0_1_2_summary'],
+    'Node10-GPU-T4-x2': ['crossfit_outer_3', 'crossfit_outer_4', 'augmentation_sensitivity', 'crossfit_outer_3_4_augmentation_summary'],
 }
 SCRIPT = Path('experiments/paper2_focused_revision_20260820.py')
 OUT = Path('paper2_artifacts')
@@ -43,9 +46,9 @@ def wait(tid, targets, seconds=16200, poll=10):
                 d = resp[t]
                 out = d.get('output') or d.get('stdout') or ''
                 (OUT / f"remote_{ROLES[t]}.txt").write_text(out, encoding='utf-8')
-                print(f'REMOTE_TAIL|{t}|' + out[-14000:], flush=True)
+                print(f'REMOTE_TAIL|{t}|' + out[-16000:], flush=True)
                 if d.get('error'):
-                    raise RuntimeError(f'{t}: {d.get("error")}\n{out[-5000:]}')
+                    raise RuntimeError(f'{t}: {d.get("error")}\n{out[-6000:]}')
                 if 'FOCUSED_REVISION_DONE|' not in out:
                     raise RuntimeError(f'{t}: completion marker missing')
             return resp
@@ -85,10 +88,7 @@ def between(t, a, b):
 
 
 def transfer(target, remote_path, local_path):
-    raw = remote(
-        target,
-        f"from pathlib import Path;import hashlib,json;p=Path({remote_path!r});print('<<<META>>>');print(json.dumps({{'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}}));print('<<<ENDMETA>>>')"
-    )
+    raw = remote(target, f"from pathlib import Path;import hashlib,json;p=Path({remote_path!r});print('<<<META>>>');print(json.dumps({{'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}}));print('<<<ENDMETA>>>')")
     meta = json.loads(between(raw, '<<<META>>>', '<<<ENDMETA>>>'))
     total = int(meta['size'])
     expected = meta['sha256']
@@ -119,8 +119,8 @@ def main():
     online = {n['node_id'] for n in state.get('nodes', []) if n.get('status') == 'online'}
     targets = [t for t in TARGETS if t in online]
     print('ONLINE|' + ','.join(sorted(online)), flush=True)
-    if len(targets) < 3:
-        raise RuntimeError('All three T4 workers are required; online=' + repr(sorted(online)))
+    if len(targets) < 2:
+        raise RuntimeError('Both T4 workers are required; online=' + repr(sorted(online)))
     execution = state.get('execution', {})
     if execution.get('status') == 'running':
         raise RuntimeError('Coordinator already has a running task: ' + str(execution.get('current_task_id')))
@@ -131,15 +131,16 @@ def main():
     print('FOCUSED_TASK|' + tid, flush=True)
     wait(tid, targets)
 
-    manifest = {}
+    manifest = {'task_id': tid, 'targets': targets, 'components': {}}
     for target in targets:
-        role = ROLES[target]
-        rp = f'/kaggle/working/paper2_data/Paper2_FOCUSED_{role}.tar.gz'
-        lp = OUT / f'Paper2_FOCUSED_{role}.tar.gz'
-        meta = transfer(target, rp, lp)
-        manifest[target] = {'role': role, **meta}
-        sha_text = remote(target, f"from pathlib import Path;print(Path({(rp + '.sha256')!r}).read_text())").strip()
-        (OUT / f'Paper2_FOCUSED_{role}.tar.gz.sha256').write_text(sha_text + '\n', encoding='utf-8')
+        manifest['components'][target] = {}
+        for tag in COMPONENTS[target]:
+            rp = f'/kaggle/working/paper2_data/Paper2_FOCUSED_{tag}.tar.gz'
+            lp = OUT / f'Paper2_FOCUSED_{tag}.tar.gz'
+            meta = transfer(target, rp, lp)
+            sha_text = remote(target, f"from pathlib import Path;print(Path({(rp + '.sha256')!r}).read_text())").strip()
+            (OUT / f'Paper2_FOCUSED_{tag}.tar.gz.sha256').write_text(sha_text + '\n', encoding='utf-8')
+            manifest['components'][target][tag] = meta
 
     (OUT / 'focused_revision_manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding='utf-8')
     print('FOCUSED_REVISION_GITHUB_READY|' + json.dumps(manifest, sort_keys=True), flush=True)
