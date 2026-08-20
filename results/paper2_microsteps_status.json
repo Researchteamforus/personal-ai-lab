@@ -1,48 +1,50 @@
 {
   "all_core_done": false,
-  "checked_at": 1787232310.368653,
-  "core_completed_steps": 345,
-  "core_percent": 34.5,
+  "checked_at": 1787232614.248801,
+  "core_completed_steps": 410,
+  "core_percent": 41.0,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
     "Node10-GPU-T4-x2": {
       "augmentation_assigned": true,
-      "completed_core_units": 155,
+      "completed_core_units": 190,
       "current_fold": 3,
       "current_inner": null,
       "fold_units": {
-        "3": 155,
+        "3": 190,
         "4": 0
       },
-      "last_line": "FINAL_TRAIN|{\"epoch\": 5, \"train_loss\": 0.1476300605317747, \"train_macro_f1\": 0.9008083993429717}",
+      "last_line": "MC|20/30",
       "latest_metrics": {
-        "epoch": 5,
-        "train_loss": 0.1476300605317747,
-        "train_macro_f1": 0.9008083993429717
+        "epoch": 9,
+        "train_loss": 0.1045840155080829,
+        "train_macro_f1": 0.9347904406709561
       },
-      "phase": "final_train",
+      "phase": "final_mc",
       "pid": 819,
       "process_alive": true,
       "status": "running"
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 190,
-      "current_fold": 0,
-      "current_inner": null,
+      "completed_core_units": 220,
+      "current_fold": 1,
+      "current_inner": 0,
       "fold_units": {
-        "0": 190,
-        "1": 0,
+        "0": 200,
+        "1": 20,
         "2": 0
       },
-      "last_line": "MC|20/30",
+      "last_line": "EARLY_STOP|8",
       "latest_metrics": {
-        "epoch": 5,
-        "train_loss": 0.1307896019659232,
-        "train_macro_f1": 0.9182180823865291
+        "epoch": 8,
+        "train_loss": 0.06876289144254888,
+        "train_macro_f1": 0.9539725240555832,
+        "val_accuracy": 0.8054825384904243,
+        "val_macro_f1": 0.6468795324302173
       },
-      "phase": "final_mc",
+      "phase": "inner_mc",
       "pid": 875,
       "process_alive": true,
       "status": "running"
