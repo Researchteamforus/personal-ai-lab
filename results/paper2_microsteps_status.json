@@ -1,50 +1,50 @@
 {
   "all_core_done": false,
-  "checked_at": 1787235039.9008284,
-  "core_completed_steps": 787,
-  "core_percent": 78.7,
+  "checked_at": 1787235343.637831,
+  "core_completed_steps": 830,
+  "core_percent": 83.0,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
     "Node10-GPU-T4-x2": {
       "augmentation_assigned": true,
-      "completed_core_units": 380,
+      "completed_core_units": 400,
       "current_fold": 4,
       "current_inner": null,
       "fold_units": {
         "3": 200,
-        "4": 180
+        "4": 200
       },
-      "last_line": "MC|10/30",
+      "last_line": "TRAIN|{\"epoch\": 4, \"train_loss\": 0.16105858271888537, \"train_macro_f1\": 0.8732904942511096, \"val_macro_f1\": 0.6812423826429903, \"val_accuracy\": 0.8021760633036598}",
       "latest_metrics": {
         "epoch": 6,
         "train_loss": 0.08159495274084803,
         "train_macro_f1": 0.928199002999774
       },
-      "phase": "final_mc",
+      "phase": "augmentation",
       "pid": 819,
       "process_alive": true,
       "status": "running"
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 407,
+      "completed_core_units": 430,
       "current_fold": 2,
       "current_inner": 0,
       "fold_units": {
         "0": 200,
         "1": 200,
-        "2": 7
+        "2": 30
       },
-      "last_line": "TRAIN|{\"epoch\": 7, \"train_loss\": 0.05019062618349693, \"train_macro_f1\": 0.9609546086342393, \"val_macro_f1\": 0.6714966865058621, \"val_accuracy\": 0.7852551984877126}",
+      "last_line": "MC|10/30",
       "latest_metrics": {
-        "epoch": 7,
-        "train_loss": 0.05019062618349693,
-        "train_macro_f1": 0.9609546086342393,
-        "val_accuracy": 0.7852551984877126,
-        "val_macro_f1": 0.6714966865058621
+        "epoch": 12,
+        "train_loss": 0.05264490380494007,
+        "train_macro_f1": 0.9605188872890167,
+        "val_accuracy": 0.7947069943289224,
+        "val_macro_f1": 0.6045702139494823
       },
-      "phase": "inner_train",
+      "phase": "inner_mc",
       "pid": 875,
       "process_alive": true,
       "status": "running"
