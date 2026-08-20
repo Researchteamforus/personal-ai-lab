@@ -1,8 +1,8 @@
 {
   "all_core_done": false,
-  "checked_at": 1787236860.9335675,
-  "core_completed_steps": 913,
-  "core_percent": 91.3,
+  "checked_at": 1787237163.7746139,
+  "core_completed_steps": 940,
+  "core_percent": 94.0,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
@@ -15,36 +15,36 @@
         "3": 200,
         "4": 200
       },
-      "last_line": "MC|10/30",
+      "last_line": "MICRO_NODE_DONE|Node10-GPU-T4-x2",
       "latest_metrics": {
         "epoch": 6,
         "train_loss": 0.08159495274084803,
         "train_macro_f1": 0.928199002999774
       },
-      "phase": "augmentation",
+      "phase": "augmentation_done",
       "pid": 819,
       "process_alive": true,
-      "status": "running"
+      "status": "completed"
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 513,
+      "completed_core_units": 540,
       "current_fold": 2,
       "current_inner": 2,
       "fold_units": {
         "0": 200,
         "1": 200,
-        "2": 113
+        "2": 140
       },
-      "last_line": "TRAIN|{\"epoch\": 13, \"train_loss\": 0.07549589031929137, \"train_macro_f1\": 0.9583914982732782, \"val_macro_f1\": 0.5979341080493007, \"val_accuracy\": 0.7538175046554935}",
+      "last_line": "MC|20/30",
       "latest_metrics": {
-        "epoch": 13,
-        "train_loss": 0.07549589031929137,
-        "train_macro_f1": 0.9583914982732782,
-        "val_accuracy": 0.7538175046554935,
-        "val_macro_f1": 0.5979341080493007
+        "epoch": 16,
+        "train_loss": 0.03750146352440903,
+        "train_macro_f1": 0.9607822518435223,
+        "val_accuracy": 0.8085661080074488,
+        "val_macro_f1": 0.6543647923553382
       },
-      "phase": "inner_train",
+      "phase": "inner_mc",
       "pid": 875,
       "process_alive": true,
       "status": "running"
