@@ -1,27 +1,27 @@
 {
   "all_core_done": false,
-  "checked_at": 1787231398.9375792,
-  "core_completed_steps": 212,
-  "core_percent": 21.2,
+  "checked_at": 1787231702.7544665,
+  "core_completed_steps": 233,
+  "core_percent": 23.3,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
     "Node10-GPU-T4-x2": {
       "augmentation_assigned": true,
-      "completed_core_units": 102,
+      "completed_core_units": 112,
       "current_fold": 3,
       "current_inner": 2,
       "fold_units": {
-        "3": 102,
+        "3": 112,
         "4": 0
       },
-      "last_line": "TRAIN|{\"epoch\": 2, \"train_loss\": 0.7333930195053839, \"train_macro_f1\": 0.6263417154265872, \"val_macro_f1\": 0.5447538615572519, \"val_accuracy\": 0.7434135166093929}",
+      "last_line": "TRAIN|{\"epoch\": 12, \"train_loss\": 0.05076786841096699, \"train_macro_f1\": 0.9564347143639024, \"val_macro_f1\": 0.6328081989339681, \"val_accuracy\": 0.7926689576174112}",
       "latest_metrics": {
-        "epoch": 2,
-        "train_loss": 0.7333930195053839,
-        "train_macro_f1": 0.6263417154265872,
-        "val_accuracy": 0.7434135166093929,
-        "val_macro_f1": 0.5447538615572519
+        "epoch": 12,
+        "train_loss": 0.05076786841096699,
+        "train_macro_f1": 0.9564347143639024,
+        "val_accuracy": 0.7926689576174112,
+        "val_macro_f1": 0.6328081989339681
       },
       "phase": "inner_train",
       "pid": 819,
@@ -30,23 +30,23 @@
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 110,
+      "completed_core_units": 121,
       "current_fold": 0,
       "current_inner": 2,
       "fold_units": {
-        "0": 110,
+        "0": 121,
         "1": 0,
         "2": 0
       },
-      "last_line": "TRAIN|{\"epoch\": 10, \"train_loss\": 0.08912997134512238, \"train_macro_f1\": 0.9232775097755394, \"val_macro_f1\": 0.6570816277864985, \"val_accuracy\": 0.8022019741837509}",
+      "last_line": "MC|1/30",
       "latest_metrics": {
-        "epoch": 10,
-        "train_loss": 0.08912997134512238,
-        "train_macro_f1": 0.9232775097755394,
-        "val_accuracy": 0.8022019741837509,
-        "val_macro_f1": 0.6570816277864985
+        "epoch": 18,
+        "train_loss": 0.0411132897432622,
+        "train_macro_f1": 0.964419315135933,
+        "val_accuracy": 0.758162490508732,
+        "val_macro_f1": 0.6015794097576315
       },
-      "phase": "inner_train",
+      "phase": "inner_mc",
       "pid": 875,
       "process_alive": true,
       "status": "running"
