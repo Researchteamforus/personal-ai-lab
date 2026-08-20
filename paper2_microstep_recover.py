@@ -1,6 +1,5 @@
 import json
 import time
-from pathlib import Path
 
 import paper2_microstep_dispatch as d
 
@@ -39,18 +38,17 @@ def clear_stale_foreground():
             print('RECOVERY|old task lookup failed|' + repr(exc), flush=True)
 
     responses = (old or {}).get('responses') or {}
-    old_status = (old or {}).get('status')
     print('RECOVERY|stale candidate|' + json.dumps({
         'task_id': old_id,
-        'task_status': old_status,
+        'task_status': (old or {}).get('status'),
         'responses': list(responses),
         'targets': targets,
     }, sort_keys=True), flush=True)
 
-    # The persisted state has been stuck for hours with zero responses. Supersede it
-    # with a tiny task so the coordinator can return to an idle state.
-    code = "print('MICRO_RECOVERY_RESET_OK', flush=True)"
-    new = d.req('POST', '/run_code', json={'code': code, 'targets': [targets[0]]})
+    new = d.req('POST', '/run_code', json={
+        'code': "print('MICRO_RECOVERY_RESET_OK', flush=True)",
+        'targets': [targets[0]],
+    })
     new_id = new.get('task_id')
     if not new_id:
         raise RuntimeError('recovery reset returned no task_id: ' + repr(new))
@@ -64,8 +62,7 @@ def clear_stale_foreground():
     end = time.time() + 30
     while time.time() < end:
         state = d.req('GET', '/get_state')
-        execution = state.get('execution') or {}
-        if execution.get('status') != 'running':
+        if (state.get('execution') or {}).get('status') != 'running':
             print('RECOVERY|coordinator idle', flush=True)
             return
         time.sleep(1)
@@ -73,18 +70,151 @@ def clear_stale_foreground():
 
 
 def safe_boot(target, folds, aug, src):
-    runner = f'''import importlib.util,traceback\nfrom pathlib import Path\np=Path('/kaggle/working/paper2_focused_revision_20260820.py')\ns=importlib.util.spec_from_file_location('focused',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)\ntry:\n print('MICRO_NODE_START|{target}',flush=True);m.download_ham();df=m.metadata()\n for f in {folds!r}:\n  print('MICRO_FOLD_START|'+str(f),flush=True);m.run_crossfit_outer(df,f);m.archive_component('crossfit_outer_'+str(f),m.OUTROOT/'crossfit'/('outer_'+str(f)));print('MICRO_FOLD_DONE|'+str(f),flush=True)\n if {aug!r}:\n  print('MICRO_AUG_START',flush=True);m.run_augmentation_pair(df);m.archive_component('augmentation_sensitivity',m.OUTROOT/'augmentation_sensitivity');print('MICRO_AUG_DONE',flush=True)\n print('MICRO_NODE_DONE|{target}',flush=True)\nexcept Exception:\n print('MICRO_NODE_ERROR|'+traceback.format_exc(),flush=True);raise\n'''
-    code = f'''import os,subprocess,sys,time\nfrom pathlib import Path\nr=Path('/kaggle/working/paper2_microsteps');r.mkdir(parents=True,exist_ok=True);pidf=r/'worker.pid';alive=False\nif pidf.exists():\n try:\n  pid=int(pidf.read_text());os.kill(pid,0);alive=True\n except Exception: alive=False\nPath('/kaggle/working/paper2_focused_revision_20260820.py').write_text({src!r},encoding='utf-8')\nPath('/kaggle/working/paper2_micro_runner.py').write_text({runner!r},encoding='utf-8')\nif alive:\n print('MICRO_ALREADY_RUNNING|'+str(pid),flush=True)\nelse:\n log=open(r/'worker.log','ab',buffering=0)\n p=subprocess.Popen([sys.executable,'/kaggle/working/paper2_micro_runner.py'],stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,cwd='/kaggle/working',start_new_session=True,close_fds=True)\n pidf.write_text(str(p.pid));log.close();time.sleep(0.25);print('MICRO_STARTED|'+str(p.pid)+'|poll='+str(p.poll()),flush=True)\n'''
+    runner = f'''import importlib.util
+import traceback
+from pathlib import Path
+
+p = Path('/kaggle/working/paper2_focused_revision_20260820.py')
+spec = importlib.util.spec_from_file_location('focused', p)
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+
+try:
+    print('MICRO_NODE_START|{target}', flush=True)
+    m.download_ham()
+    df = m.metadata()
+    for f in {folds!r}:
+        print('MICRO_FOLD_START|' + str(f), flush=True)
+        m.run_crossfit_outer(df, f)
+        m.archive_component('crossfit_outer_' + str(f), m.OUTROOT / 'crossfit' / ('outer_' + str(f)))
+        print('MICRO_FOLD_DONE|' + str(f), flush=True)
+    if {aug!r}:
+        print('MICRO_AUG_START', flush=True)
+        m.run_augmentation_pair(df)
+        m.archive_component('augmentation_sensitivity', m.OUTROOT / 'augmentation_sensitivity')
+        print('MICRO_AUG_DONE', flush=True)
+    print('MICRO_NODE_DONE|{target}', flush=True)
+except Exception:
+    print('MICRO_NODE_ERROR|' + traceback.format_exc(), flush=True)
+    raise
+'''
+
+    code = f'''import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+root = Path('/kaggle/working/paper2_microsteps')
+root.mkdir(parents=True, exist_ok=True)
+pidf = root / 'worker.pid'
+alive = False
+pid = None
+if pidf.exists():
+    try:
+        pid = int(pidf.read_text())
+        os.kill(pid, 0)
+        alive = True
+    except Exception:
+        alive = False
+
+Path('/kaggle/working/paper2_focused_revision_20260820.py').write_text({src!r}, encoding='utf-8')
+Path('/kaggle/working/paper2_micro_runner.py').write_text({runner!r}, encoding='utf-8')
+
+if alive:
+    print('MICRO_ALREADY_RUNNING|' + str(pid), flush=True)
+else:
+    log = open(root / 'worker.log', 'ab', buffering=0)
+    proc = subprocess.Popen(
+        [sys.executable, '/kaggle/working/paper2_micro_runner.py'],
+        stdin=subprocess.DEVNULL,
+        stdout=log,
+        stderr=subprocess.STDOUT,
+        cwd='/kaggle/working',
+        start_new_session=True,
+        close_fds=True,
+    )
+    pidf.write_text(str(proc.pid))
+    log.close()
+    time.sleep(0.25)
+    print('MICRO_STARTED|' + str(proc.pid) + '|poll=' + str(proc.poll()), flush=True)
+'''
+
     response = d.task(code, [target], 120)[target]
     output = response.get('output') or response.get('stdout') or ''
     print(output, flush=True)
     if response.get('error'):
-        raise RuntimeError(str(response.get('error')))
+        raise RuntimeError(str(response.get('error')) + '\n' + output[-4000:])
+
+
+def safe_query(targets):
+    code = '''import json
+import os
+from pathlib import Path
+
+root = Path('/kaggle/working/paper2_microsteps')
+pid = None
+alive = False
+try:
+    pid = int((root / 'worker.pid').read_text())
+    os.kill(pid, 0)
+    alive = True
+except Exception:
+    pass
+
+out = {
+    'pid': pid,
+    'alive': alive,
+    'log': (root / 'worker.log').read_text(encoding='utf-8', errors='replace') if (root / 'worker.log').exists() else '',
+    'summaries': {},
+    'augmentation': None,
+}
+for fold in range(5):
+    p = Path(f'/kaggle/working/paper2_data/focused_revision_20260820/crossfit/outer_{fold}/summary.json')
+    if p.exists():
+        try:
+            out['summaries'][str(fold)] = json.loads(p.read_text())
+        except Exception:
+            pass
+p = Path('/kaggle/working/paper2_data/focused_revision_20260820/augmentation_sensitivity/paired_summary.json')
+if p.exists():
+    try:
+        out['augmentation'] = json.loads(p.read_text())
+    except Exception:
+        pass
+print('<<<S>>>')
+print(json.dumps(out, default=str))
+print('<<<E>>>')
+'''
+
+    responses = d.task(code, targets, 120)
+    parsed = {}
+    for target, response in responses.items():
+        text = response.get('output') or response.get('stdout') or ''
+        if response.get('error'):
+            parsed[target] = {
+                'alive': False,
+                'log': 'QUERY_REMOTE_ERROR|' + str(response.get('error')) + '\n' + text[-3000:],
+                'summaries': {},
+            }
+            continue
+        a = text.find('<<<S>>>')
+        b = text.find('<<<E>>>', a + 7)
+        if a >= 0 and b >= 0:
+            parsed[target] = json.loads(text[a + 7:b].strip())
+        else:
+            parsed[target] = {
+                'alive': False,
+                'log': 'QUERY_PARSE_ERROR|' + text[-3000:],
+                'summaries': {},
+            }
+    return parsed
 
 
 def main():
     clear_stale_foreground()
     d.boot = safe_boot
+    d.query = safe_query
     return d.main()
 
 
