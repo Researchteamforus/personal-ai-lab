@@ -1,42 +1,44 @@
 {
   "all_core_done": false,
-  "checked_at": 1787232614.248801,
-  "core_completed_steps": 410,
-  "core_percent": 41.0,
+  "checked_at": 1787232918.235171,
+  "core_completed_steps": 457,
+  "core_percent": 45.7,
   "core_total_steps": 1000,
   "has_error": false,
   "nodes": {
     "Node10-GPU-T4-x2": {
       "augmentation_assigned": true,
-      "completed_core_units": 190,
-      "current_fold": 3,
-      "current_inner": null,
+      "completed_core_units": 207,
+      "current_fold": 4,
+      "current_inner": 0,
       "fold_units": {
-        "3": 190,
-        "4": 0
+        "3": 200,
+        "4": 7
       },
-      "last_line": "MC|20/30",
+      "last_line": "TRAIN|{\"epoch\": 7, \"train_loss\": 0.0745063618911761, \"train_macro_f1\": 0.9516343078214364, \"val_macro_f1\": 0.6205512232113026, \"val_accuracy\": 0.7938760268857357}",
       "latest_metrics": {
-        "epoch": 9,
-        "train_loss": 0.1045840155080829,
-        "train_macro_f1": 0.9347904406709561
+        "epoch": 7,
+        "train_loss": 0.0745063618911761,
+        "train_macro_f1": 0.9516343078214364,
+        "val_accuracy": 0.7938760268857357,
+        "val_macro_f1": 0.6205512232113026
       },
-      "phase": "final_mc",
+      "phase": "inner_train",
       "pid": 819,
       "process_alive": true,
       "status": "running"
     },
     "Node2-GPU-T4-x2": {
       "augmentation_assigned": false,
-      "completed_core_units": 220,
+      "completed_core_units": 250,
       "current_fold": 1,
-      "current_inner": 0,
+      "current_inner": 1,
       "fold_units": {
         "0": 200,
-        "1": 20,
+        "1": 50,
         "2": 0
       },
-      "last_line": "EARLY_STOP|8",
+      "last_line": "CROSSFIT_INNER|outer=1|inner=1|tr=5341|val=2648|seed=12101",
       "latest_metrics": {
         "epoch": 8,
         "train_loss": 0.06876289144254888,
@@ -44,7 +46,7 @@
         "val_accuracy": 0.8054825384904243,
         "val_macro_f1": 0.6468795324302173
       },
-      "phase": "inner_mc",
+      "phase": "inner_train",
       "pid": 875,
       "process_alive": true,
       "status": "running"
