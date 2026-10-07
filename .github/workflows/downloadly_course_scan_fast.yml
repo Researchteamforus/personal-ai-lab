@@ -1,0 +1,87 @@
+name: Downloadly Course Scan Fast
+
+on:
+  push:
+    paths:
+      - ".github/workflows/downloadly_course_scan_fast.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scan-fast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --disable-pip-version-check requests beautifulsoup4
+      - name: Fast parallel scan
+        run: |
+          python - <<'PY'
+          import concurrent.futures, re
+          from urllib.parse import quote, urljoin, urlparse
+          import requests
+          from bs4 import BeautifulSoup
+
+          base="https://downloadlynet.ir"
+          terms=["genomics","genetic epidemiology","bioinformatics","GWAS",
+                 "next generation sequencing","Bioconductor","precision medicine",
+                 "polygenic risk score","population genetics","statistical genetics",
+                 "genomic data science"]
+
+          headers={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36"}
+          keys=["genom","genetic","bioinform","gwas","sequenc","ngs","bioconductor","precision medicine","polygenic","population genetics"]
+
+          def scan(term):
+              url=f"{base}/?s={quote(term)}"
+              try:
+                  r=requests.get(url,headers=headers,timeout=8,allow_redirects=True)
+                  found={}
+                  if r.ok:
+                      soup=BeautifulSoup(r.text,"html.parser")
+                      for a in soup.find_all("a",href=True):
+                          u=urljoin(r.url,a["href"])
+                          t=" ".join(a.get_text(" ",strip=True).split())
+                          if not t or len(t)<4: continue
+                          p=urlparse(u)
+                          low=(t+" "+u).lower()
+                          if p.netloc.endswith("downloadlynet.ir") and any(k in low for k in keys):
+                              found[u]=t
+                  return term,r.status_code,r.url,found
+              except Exception as e:
+                  return term,"ERROR",str(e)[:160],{}
+
+          results=[]
+          with concurrent.futures.ThreadPoolExecutor(max_workers=len(terms)) as ex:
+              for x in ex.map(scan,terms):
+                  results.append(x)
+
+          dedup={}
+          for term,status,detail,found in results:
+              for u,t in found.items():
+                  dedup.setdefault(u,{"title":t,"terms":set()})["terms"].add(term)
+
+          with open("fast-results.md","w",encoding="utf-8") as f:
+              f.write("# Fast GitHub-runner scan result\n\n")
+              f.write("Public listing/search pages only; no course files were downloaded.\n\n")
+              if dedup:
+                  f.write(f"Found **{len(dedup)} unique potentially relevant pages**.\n\n")
+                  f.write("| Title | Matched terms | URL |\n|---|---|---|\n")
+                  for u,v in sorted(dedup.items(),key=lambda kv:kv[1]["title"].lower()):
+                      title=v["title"].replace("|","\\|")
+                      mt=", ".join(sorted(v["terms"])).replace("|","\\|")
+                      f.write(f"| {title} | {mt} | {u} |\n")
+              else:
+                  f.write("No relevant pages could be extracted.\n")
+              f.write("\n## Reachability/status\n\n| Term | Status | Final URL / error |\n|---|---:|---|\n")
+              for term,status,detail,_ in results:
+                  f.write(f"| {term} | {status} | {str(detail).replace('|','\\|')} |\n")
+              print(open("fast-results.md",encoding="utf-8").read())
+          PY
+      - name: Comment result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment 1 --repo "${{ github.repository }}" --body-file fast-results.md
