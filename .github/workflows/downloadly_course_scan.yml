@@ -1,0 +1,142 @@
+name: Downloadly Course Scan
+
+on:
+  push:
+    paths:
+      - ".github/workflows/downloadly_course_scan.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check requests beautifulsoup4
+
+      - name: Scan public course listing pages
+        run: |
+          python - <<'PY'
+          import html, json, re, time
+          from urllib.parse import quote, urljoin, urlparse
+          import requests
+          from bs4 import BeautifulSoup
+
+          base = "https://downloadlynet.ir"
+          terms = [
+              "genomics",
+              "genetic epidemiology",
+              "bioinformatics",
+              "GWAS",
+              "next generation sequencing",
+              "NGS",
+              "Bioconductor",
+              "precision medicine",
+              "polygenic risk score",
+              "population genetics",
+              "statistical genetics",
+              "genomic data science",
+          ]
+
+          s = requests.Session()
+          s.headers.update({
+              "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                            "(KHTML, like Gecko) Chrome/140.0 Safari/537.36",
+              "Accept-Language": "en-US,en;q=0.9",
+          })
+
+          rows = []
+          statuses = []
+
+          def keep_link(url):
+              try:
+                  p = urlparse(url)
+                  return p.netloc.endswith("downloadlynet.ir") and url.startswith("http")
+              except Exception:
+                  return False
+
+          for term in terms:
+              found = {}
+              # Try WordPress REST search first.
+              api = f"{base}/wp-json/wp/v2/search?search={quote(term)}&per_page=100"
+              try:
+                  r = s.get(api, timeout=20, allow_redirects=True)
+                  statuses.append((term, "REST", r.status_code, r.url))
+                  if r.ok and "json" in r.headers.get("content-type","").lower():
+                      data = r.json()
+                      if isinstance(data, list):
+                          for item in data:
+                              url = item.get("url","")
+                              title = html.unescape(re.sub("<[^>]+>", "", item.get("title",""))).strip()
+                              if title and keep_link(url):
+                                  found[url] = title
+              except Exception as e:
+                  statuses.append((term, "REST", "ERROR", str(e)[:160]))
+
+              # HTML search fallback / supplement.
+              search_url = f"{base}/?s={quote(term)}"
+              try:
+                  r = s.get(search_url, timeout=20, allow_redirects=True)
+                  statuses.append((term, "HTML", r.status_code, r.url))
+                  if r.ok:
+                      soup = BeautifulSoup(r.text, "html.parser")
+                      for a in soup.find_all("a", href=True):
+                          url = urljoin(r.url, a["href"])
+                          title = " ".join(a.get_text(" ", strip=True).split())
+                          if not title:
+                              continue
+                          if keep_link(url) and len(title) >= 4:
+                              low = (title + " " + url).lower()
+                              if any(k in low for k in [
+                                  "genom", "genetic", "bioinform", "gwas", "sequenc",
+                                  "ngs", "bioconductor", "precision medicine",
+                                  "polygenic", "population genetics"
+                              ]):
+                                  found[url] = title
+              except Exception as e:
+                  statuses.append((term, "HTML", "ERROR", str(e)[:160]))
+
+              for url, title in found.items():
+                  rows.append((term, title, url))
+              time.sleep(0.7)
+
+          # Deduplicate by URL.
+          dedup = {}
+          for term, title, url in rows:
+              dedup.setdefault(url, {"title": title, "terms": set()})
+              dedup[url]["terms"].add(term)
+
+          with open("scan-results.md", "w", encoding="utf-8") as f:
+              f.write("# Downloadly course availability scan\n\n")
+              f.write("Scope: public listing/search pages only; no course archives or paid course content were downloaded.\n\n")
+              if dedup:
+                  f.write(f"Found **{len(dedup)} unique potentially relevant pages**.\n\n")
+                  f.write("| Title | Matched search term(s) | URL |\n|---|---|---|\n")
+                  for url, info in sorted(dedup.items(), key=lambda kv: kv[1]["title"].lower()):
+                      title = info["title"].replace("|", "\\|")
+                      terms_txt = ", ".join(sorted(info["terms"])).replace("|", "\\|")
+                      f.write(f"| {title} | {terms_txt} | {url} |\n")
+              else:
+                  f.write("No relevant course pages were extracted. The status table below shows whether the site was reachable from the GitHub runner.\n")
+
+              f.write("\n## Request status\n\n")
+              f.write("| Search term | Method | Status | Final URL / error |\n|---|---|---:|---|\n")
+              for term, method, status, detail in statuses:
+                  detail = str(detail).replace("|", "\\|")
+                  f.write(f"| {term} | {method} | {status} | {detail} |\n")
+
+          print(open("scan-results.md", encoding="utf-8").read())
+          PY
+
+      - name: Post results to issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment 1 --repo "${{ github.repository }}" --body-file scan-results.md
