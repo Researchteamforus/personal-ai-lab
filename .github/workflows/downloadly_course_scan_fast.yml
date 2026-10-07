@@ -21,7 +21,7 @@ jobs:
       - name: Fast parallel scan
         run: |
           python - <<'PY'
-          import concurrent.futures, re
+          import concurrent.futures
           from urllib.parse import quote, urljoin, urlparse
           import requests
           from bs4 import BeautifulSoup
@@ -45,7 +45,8 @@ jobs:
                       for a in soup.find_all("a",href=True):
                           u=urljoin(r.url,a["href"])
                           t=" ".join(a.get_text(" ",strip=True).split())
-                          if not t or len(t)<4: continue
+                          if not t or len(t)<4:
+                              continue
                           p=urlparse(u)
                           low=(t+" "+u).lower()
                           if p.netloc.endswith("downloadlynet.ir") and any(k in low for k in keys):
@@ -54,10 +55,8 @@ jobs:
               except Exception as e:
                   return term,"ERROR",str(e)[:160],{}
 
-          results=[]
           with concurrent.futures.ThreadPoolExecutor(max_workers=len(terms)) as ex:
-              for x in ex.map(scan,terms):
-                  results.append(x)
+              results=list(ex.map(scan,terms))
 
           dedup={}
           for term,status,detail,found in results:
@@ -78,8 +77,9 @@ jobs:
                   f.write("No relevant pages could be extracted.\n")
               f.write("\n## Reachability/status\n\n| Term | Status | Final URL / error |\n|---|---:|---|\n")
               for term,status,detail,_ in results:
-                  f.write(f"| {term} | {status} | {str(detail).replace('|','\\|')} |\n")
-              print(open("fast-results.md",encoding="utf-8").read())
+                  detail_s=str(detail).replace("|","/")
+                  f.write(f"| {term} | {status} | {detail_s} |\n")
+          print(open("fast-results.md",encoding="utf-8").read())
           PY
       - name: Comment result
         env:
